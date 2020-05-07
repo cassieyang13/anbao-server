@@ -98,10 +98,10 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
         <Col span={12}>
           <Form.Item label="订单状态:" name="orderStatus">
             <Select defaultValue={'validity'} value={'validity'}>
-              <Select.Option value={'create'}>订单创建待支付</Select.Option>
+              {/* <Select.Option value={'create'}>订单创建待支付</Select.Option> */}
               <Select.Option value={'validity'}>有效期内</Select.Option>
               <Select.Option value={'expired'}>订单过期</Select.Option>
-              <Select.Option value={'delete'}>删除</Select.Option>
+              {/* <Select.Option value={'delete'}>删除</Select.Option> */}
             </Select>
           </Form.Item>
         </Col>

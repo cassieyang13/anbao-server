@@ -116,8 +116,10 @@ const OrderCharge: React.FC = () => {
   const [param, setParam] = useState({
     orderType: 1,
     userPhone: '',
-    startTime: '2020-01-01 08:00:00',
-    endTime: '2020-01-01 08:00:00',
+    startTime: moment()
+      .days(-3)
+      .format('YYYY-MM-DD HH:mm:ss'),
+    endTime: moment().format('YYYY-MM-DD HH:mm:ss'),
     orderStatus: '',
   });
   const [visiable, setVisiable] = useState(false);

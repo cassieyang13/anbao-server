@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox } from 'antd';
+import { Divider, Modal, Checkbox, message } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import ITable from '../../components/ITable';
 import TableSearch from './TableSearch';
-import { getComitList, addComit, eitComit, deleteComit } from '@/services/village';
+import { getComitList, addComit, eitComit, deleteComit, comitQrCode } from '@/services/village';
 import { Form, Input, Button, Col, Row } from 'antd';
 import { ITableData, ComitListData } from '@/services/interface';
+import ImageComponents from '@/components/Image';
 
 interface IParams {
   comitName: string;
@@ -88,12 +89,20 @@ const Village: React.FC = () => {
     {
       title: '车辆类型',
       dataIndex: 'vehicleList',
-      key: 'vehicleList',
       align: 'center',
       render: (value: any) => {
         return value.map((item: any) => {
           return <span key={`veh${item.vehId}`}>{item.vehName}&nbsp;</span>;
         });
+      },
+    },
+    {
+      title: '二维码',
+      dataIndex: 'qrCode',
+      key: 'qrCode',
+      align: 'center',
+      render: (value: any) => {
+        return value ? <ImageComponents src={value} isPreview style={{width: '50px', height: '50px'}} /> : null
       },
     },
     {
@@ -134,10 +143,11 @@ const Village: React.FC = () => {
     comitId: 0,
   });
   const [loading, setLoading] = useState(false);
+  // const [haveQrCode, setQrCode] = useState(false);
+  const [qrCode, setQrCode] = useState('https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1703379070,4045642993&fm=26&gp=0.jpg');
   const [vehTypeArr, setVehTypeArr] = useState<any[]>([]);
 
   useEffect(() => {
-
     console.log(window.document.location.href);
     console.log(window.document.location.pathname);
     getComitData();
@@ -162,27 +172,31 @@ const Village: React.FC = () => {
 
   function handleEdit(record: any) {
     let bicyclePrice = 0;
-    let batPrice = 0
+    let batPrice = 0;
     let triPrice = 0;
     let motoPrice = 0;
-    const {batteryList} = record
-    
+    const { batteryList } = record;
+
     const vehicleIdsArr = record.vehicleList.map((item: any) => {
-      if(item.vehName === '自行车'){
-        bicyclePrice = item.accessPrice
+      if (item.vehName === '自行车') {
+        bicyclePrice = item.accessPrice;
       } else if (item.vehName === '电瓶车') {
         batPrice = item.accessPrice;
-      }else if (item.vehName === '三轮车') {
+      } else if (item.vehName === '三轮车') {
         triPrice = item.accessPrice;
-      }else  {
+      } else {
         motoPrice = item.accessPrice;
       }
       return item.vehId;
     });
+
+    if (record.qrCode) {
+      setQrCode(record.qrCode)
+    } else {
+      setQrCode('')
+    }
     
-    setVehTypeArr([
-      ...vehicleIdsArr,
-    ])
+    setVehTypeArr([...vehicleIdsArr]);
     form.setFieldsValue({
       comitName: record.comitName,
       comitLocation: record.comitLocation,
@@ -251,32 +265,32 @@ const Village: React.FC = () => {
   async function modalSubmit() {
     console.log(editData);
     const values = await form.validateFields();
-   
+
     let vehicleList = [];
-   
+
     if (values.bicyclePrice) {
       vehicleList.push({
         vehId: 1,
-        accessPrice: Number(values.bicyclePrice)
-      })
+        accessPrice: Number(values.bicyclePrice),
+      });
     }
     if (values.batPrice) {
       vehicleList.push({
-        vehId:2,
-        accessPrice: Number(values.batPrice)
-      })
+        vehId: 2,
+        accessPrice: Number(values.batPrice),
+      });
     }
     if (values.triPrice) {
       vehicleList.push({
         vehId: 3,
-        accessPrice: Number(values.triPrice)
-      })
+        accessPrice: Number(values.triPrice),
+      });
     }
     if (values.motoPrice) {
       vehicleList.push({
         vehId: 4,
-        accessPrice: Number(values.motoPrice)
-      })
+        accessPrice: Number(values.motoPrice),
+      });
     }
     const batteryList = [
       {
@@ -293,14 +307,14 @@ const Village: React.FC = () => {
         batId: 3,
         tempPrice: Number(values.bat72Price),
         countPrice: Number(values.bat72PriceMonth),
-      }
+      },
     ];
 
-    const  reqParams = {
+    const reqParams = {
       comitName: values.comitName,
       comitLocation: values.comitLocation,
       openType: values.openType,
-      pledgePrice:  Number(values.pledgePrice),
+      pledgePrice: Number(values.pledgePrice),
       tempPrice: Number(values.tempPrice),
       vehicleList,
       batteryList,
@@ -308,14 +322,15 @@ const Village: React.FC = () => {
       discount6: values.discount6,
       discount12: values.discount12,
       projectUser: values.projectUser,
-      projectPhone: values.projectPhone,      
-    }
+      projectPhone: values.projectPhone,
+    };
     try {
       if (editData.comitId) {
         //编辑
         eitComit({
           ...reqParams,
           comitId: editData.comitId,
+          qrCode,
         }).then(res => {
           if (res.result === 0) {
             getComitData();
@@ -327,12 +342,10 @@ const Village: React.FC = () => {
         // 新增
         addComit({
           ...reqParams,
-          
         }).then(res => {
           if (res.result === 0) {
-           
           }
-         
+
           getComitData();
           setVisiable(false);
           // form.resetFields();
@@ -348,9 +361,16 @@ const Village: React.FC = () => {
   }
 
   function vehicleChange(value: any[]) {
-    console.log(value)
-    setVehTypeArr(value)
-    
+    console.log(value);
+    setVehTypeArr(value);
+  }
+
+  async function handleQrCode () {
+    const res = await comitQrCode({comitId: editData.comitId, type: 'access'});
+    if (res && res.result === 0) {
+      setQrCode(res.data);
+      message.success('生成成功')
+    }
   }
 
   const formItemLayout = {
@@ -373,6 +393,7 @@ const Village: React.FC = () => {
         />
       </div>
       <Modal
+      getContainer={false}
         forceRender
         title="新增/编辑小区信息"
         visible={visiable}
@@ -381,7 +402,6 @@ const Village: React.FC = () => {
           setVisiable(false);
           form.setFieldsValue({});
         }}
-        
         destroyOnClose
         width={600}
       >
@@ -483,66 +503,62 @@ const Village: React.FC = () => {
             </Checkbox.Group>
           </Form.Item>
 
-          {
-            vehTypeArr.includes(1) ? 
-             <Form.Item
-             label="自行车停车金额:"
-             name="bicyclePrice"
-             rules={[
-               {
-                 required: true,
-                 message: '请输入自行车停车金额',
-               },
-             ]}
-           >
-             <Input className={styles.input} placeholder="请输入自行车停车金额" />
-           </Form.Item> : null
-          }
-          {
-            vehTypeArr.includes(2) ? 
-             <Form.Item
-             label="电瓶车停车金额:"
-             name="batPrice"
-             rules={[
-               {
-                 required: true,
-                 message: '请输入电瓶车停车金额',
-               },
-             ]}
-           >
-             <Input className={styles.input} placeholder="请输入电瓶车停车金额" />
-           </Form.Item> : null
-          }
-          {
-            vehTypeArr.includes(4) ? 
-             <Form.Item
-             label="三轮车停车金额:"
-             name="triPrice"
-             rules={[
-               {
-                 required: true,
-                 message: '请输入三轮车停车金额',
-               },
-             ]}
-           >
-             <Input className={styles.input} placeholder="请输入三轮车停车金额" />
-           </Form.Item> : null
-          }
-          {
-            vehTypeArr.includes(3) ? 
-             <Form.Item
-             label="摩托车停车金额:"
-             name="motoPrice"
-             rules={[
-               {
-                 required: true,
-                 message: '请输入摩托车停车金额',
-               },
-             ]}
-           >
-             <Input className={styles.input} placeholder="请输入摩托车停车金额" />
-           </Form.Item> : null
-          }
+          {vehTypeArr.includes(1) ? (
+            <Form.Item
+              label="自行车停车金额:"
+              name="bicyclePrice"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入自行车停车金额',
+                },
+              ]}
+            >
+              <Input className={styles.input} placeholder="请输入自行车停车金额" />
+            </Form.Item>
+          ) : null}
+          {vehTypeArr.includes(2) ? (
+            <Form.Item
+              label="电瓶车停车金额:"
+              name="batPrice"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入电瓶车停车金额',
+                },
+              ]}
+            >
+              <Input className={styles.input} placeholder="请输入电瓶车停车金额" />
+            </Form.Item>
+          ) : null}
+          {vehTypeArr.includes(4) ? (
+            <Form.Item
+              label="三轮车停车金额:"
+              name="triPrice"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入三轮车停车金额',
+                },
+              ]}
+            >
+              <Input className={styles.input} placeholder="请输入三轮车停车金额" />
+            </Form.Item>
+          ) : null}
+          {vehTypeArr.includes(3) ? (
+            <Form.Item
+              label="摩托车停车金额:"
+              name="motoPrice"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入摩托车停车金额',
+                },
+              ]}
+            >
+              <Input className={styles.input} placeholder="请输入摩托车停车金额" />
+            </Form.Item>
+          ) : null}
           <Form.Item
             label="48V电瓶临时充电单价:"
             name="bat48Price"
@@ -675,6 +691,11 @@ const Village: React.FC = () => {
           >
             <Input className={styles.input} placeholder="请输入联系人电话" />
           </Form.Item>
+          {editData.comitId ? (
+            <Form.Item label="小区二维码:" >              
+              {qrCode ? <ImageComponents  src={qrCode} isPreview={true} /> : <Button type="primary" onClick={handleQrCode}>生成二维码</Button>}
+            </Form.Item>
+          ) : null}
         </Form>
       </Modal>
     </PageHeaderWrapper>
