@@ -8,7 +8,7 @@ export async function getOrderList(params: any): Promise<any> {
 
 // 退款
 export async function refund(params: any): Promise<any> {
-  return request(`/order/api/v1/refund`, {
+  return request('/order/api/v1/refund', {
     method: 'POST',
     body: params,
     formData: true,
@@ -17,7 +17,7 @@ export async function refund(params: any): Promise<any> {
 
 // 创建实体卡订单
 export async function createOrder(params: any): Promise<any> {
-  return request(`/order/api/v1/create`, {
+  return request('/order/api/v1/create', {
     method: 'POST',
     body: params,
   });
@@ -25,7 +25,7 @@ export async function createOrder(params: any): Promise<any> {
 
 // 修改订单
 export async function updateOrder(params: any): Promise<any> {
-  return request(`/order/api/v1/update`, {
+  return request('/order/api/v1/update', {
     method: 'POST',
     body: params,
   });
@@ -44,4 +44,3 @@ export async function comitDetail(params: {comitId: number}): Promise<any> {
     method: 'GET',
   });
 }
-

@@ -14,7 +14,7 @@ export async function getChargeLogList(params: any): Promise<any> {
 
 // 退款
 export async function refund(params: any): Promise<any> {
-  return request(`/order/api/v1/refund`, {
+  return request('/order/api/v1/refund', {
     method: 'POST',
     body: params,
     formData: true,

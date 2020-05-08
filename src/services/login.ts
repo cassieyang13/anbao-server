@@ -20,7 +20,7 @@ export async function getFakeCaptcha(mobile: string) {
 
 // 登陆
 export async function login(params: any): Promise<any> {
-  return request(`/admin/login`, {
+  return request('/admin/login', {
     method: 'POST',
     body: params,
     formData: true,
@@ -29,7 +29,7 @@ export async function login(params: any): Promise<any> {
 
 // 登陆
 export async function logout(): Promise<any> {
-  return request(`/admin/logout`, {
+  return request('/admin/logout', {
     method: 'POST',
   });
 }

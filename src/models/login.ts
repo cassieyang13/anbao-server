@@ -38,8 +38,8 @@ const Model: LoginModelType = {
       const response = yield call(login, payload);
       if (response) {
         const isLongin = response && response.result === 0;
- 
-        console.log(response)    
+
+        console.log(response)
         if (isLongin) {
           yield UserStorage.setUserToken(response.data.token);
           yield UserStorage.setUserInfo(response.data.admin);
@@ -48,9 +48,7 @@ const Model: LoginModelType = {
         } else {
           yield message.error('登陆失败');
         }
-       
       }
-           
     },
 
     *logout(_, { put }) {

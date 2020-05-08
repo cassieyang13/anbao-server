@@ -51,10 +51,10 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
   function renderLog() {
     return (
       <Row className={styles.left}>
-        
+
         <Col span={12}>
           <Form.Item label="设备id:" name="devId">
-            <Input className={styles.input} placeholder="请输入设备id"  />
+            <Input className={styles.input} placeholder="请输入设备id" />
           </Form.Item>
         </Col>
         <Col span={12}>
@@ -97,10 +97,10 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
         </Col> */}
         <Col span={12}>
           <Form.Item label="订单状态:" name="orderStatus">
-            <Select defaultValue={'validity'} value={'validity'}>
+            <Select defaultValue="validity" value="validity">
               {/* <Select.Option value={'create'}>订单创建待支付</Select.Option> */}
-              <Select.Option value={'validity'}>有效期内</Select.Option>
-              <Select.Option value={'expired'}>订单过期</Select.Option>
+              <Select.Option value="validity">有效期内</Select.Option>
+              <Select.Option value="expired">订单过期</Select.Option>
               {/* <Select.Option value={'delete'}>删除</Select.Option> */}
             </Select>
           </Form.Item>
@@ -180,7 +180,7 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
           </Form.Item>
         </Col>
         }
-        
+
         <Col span={12}>
           <Form.Item label="设备状态:" name="status">
             <Select placeholder="请选择设备状态">
@@ -204,17 +204,15 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
           <Form.Item label="选择小区:" name="comitId">
           <Select placeholder="请选择小区">
             {
-              comitData && comitData.map((item) => {
-                return <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>
-              })
-            }              
+              comitData && comitData.map(item => <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>)
+            }
             </Select>
           </Form.Item>
         </Col>
       </Row>
     );
   }
- 
+
   async function handleReset() {
     form.resetFields();
     const values = await form.validateFields();

@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from './index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox, message } from 'antd';
+import { Divider, Modal, Checkbox, message, Form, Input, Button, Col, Row } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import ITable from '@/components/ITable';
 import TableSearch from '@/components/TableSearch';
 import { getAccessList, addAccess, editAccess, deleteAccess } from '@/services/equipment';
-import { Form, Input, Button, Col, Row } from 'antd';
+
 import { getUserList, deleteUser } from '@/services/client';
+import styles from './index.less';
 
 interface IParams {
   userPhone: string;
@@ -21,9 +21,7 @@ const Order: React.FC = () => {
       title: '序号',
       key: 'sortId',
       align: 'center',
-      render: (val, _, index) => {
-        return index + 1;
-      },
+      render: (val, _, index) => index + 1,
     },
     {
       title: '手机号',
@@ -35,7 +33,7 @@ const Order: React.FC = () => {
       dataIndex: 'userName',
       align: 'center',
     },
-   
+
     {
       title: '操作',
       key: 'action',
@@ -66,7 +64,7 @@ const Order: React.FC = () => {
   const [visiable, setVisiable] = useState(false);
   const [editData, setEditData] = useState<IParams>({
     userPhone: '',
-    userName: '',    
+    userName: '',
   });
 
   useEffect(() => {
@@ -75,14 +73,13 @@ const Order: React.FC = () => {
 
   function getClientData() {
     getUserList(param).then((res: any) => {
-      if(res) {
-
+      if (res) {
         setClientList(res.data);
       }
     });
   }
 
-  
+
   function handleDelete(record: any) {
     console.log(record);
 
@@ -118,12 +115,11 @@ const Order: React.FC = () => {
     const values = await form.validateFields();
     console.log(values);
     try {
-      debugger;
       if (editData.userPhone) {
-        //编辑
+        // 编辑
         editAccess({
           ...values,
-          
+
         }).then((res: any) => {
           getClientData();
           form.resetFields();
@@ -133,7 +129,7 @@ const Order: React.FC = () => {
         // 新增
         addAccess({
           ...values,
-         
+
         }).then((res: any) => {
           getClientData();
           form.resetFields();
@@ -153,12 +149,12 @@ const Order: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type={'client'} onSubmit={handleSearch} onAdd={handleAdd} isShowAdd={false} />
+        <TableSearch type="client" onSubmit={handleSearch} onAdd={handleAdd} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>
         <ITable
-          key={'access'}
+          key="access"
           columns={columns}
           data={{ list: clientList, pagination: {} }}
           onChange={handleTable}
@@ -194,7 +190,7 @@ const Order: React.FC = () => {
           <Form.Item label="姓名:" name="userName">
             <Input className={styles.input} placeholder="请输入姓名" />
           </Form.Item>
-               
+
         </Form>
       </Modal>
     </PageHeaderWrapper>

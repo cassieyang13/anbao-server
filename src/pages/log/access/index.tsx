@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from '../index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox } from 'antd';
+import { Divider, Modal, Checkbox, Form, Input, Button, Col, Row } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import ITable from '@/components/ITable';
 import TableSearch from '@/components/TableSearch';
-import { Form, Input, Button, Col, Row } from 'antd';
+
 import { getOrderList, refund } from '@/services/order';
 import moment from 'moment';
 import { getLogList } from '@/services/log';
+import styles from '../index.less';
 
 // interface IParams {
 //   orderId: string;
@@ -21,29 +21,27 @@ const AccessCharge: React.FC = () => {
       title: '序号',
       key: 'sortId',
       align: 'center',
-      render: (val, _, index) => {
-        return index + 1;
-      },
+      render: (val, _, index) => index + 1,
     },
     {
       title: '手机',
       dataIndex: 'userPhone',
       align: 'center',
-     
+
     },
     {
       title: '姓名',
       dataIndex: 'userName',
       align: 'center',
-      
+
     },
     {
       title: '创建时间',
       dataIndex: 'createtime',
       align: 'center',
-      
+
     },
-    
+
     {
       title: '设备id',
       dataIndex: 'devId',
@@ -58,9 +56,7 @@ const AccessCharge: React.FC = () => {
       title: '操作',
       dataIndex: 'direction',
       align: 'center',
-      render: (value) => {
-        return value === '1' ? '出门' : '进门'
-      }
+      render: value => (value === '1' ? '出门' : '进门')
     },
   ];
 
@@ -84,11 +80,10 @@ const AccessCharge: React.FC = () => {
   function getLogData() {
     setLoading(true);
     getLogList(param).then((res: any) => {
-      if(res) {
+      if (res) {
         setLoading(false);
       setLogList(res.data);
       }
-      
     });
   }
 
@@ -99,7 +94,7 @@ const AccessCharge: React.FC = () => {
     console.log(values);
     setParam({
       ...param,
-      devId: values.devId,     
+      devId: values.devId,
       userPhone: values.userPhone,
       startTime: values.rangeTime
         ? moment(values.rangeTime[0]).format('YYYY-MM-DD HH:mm:ss')
@@ -110,29 +105,23 @@ const AccessCharge: React.FC = () => {
     });
   }
 
- 
 
   async function modalSubmit() {
     const values = await form.validateFields();
     console.log(values);
-    try {
-    
-    } catch (e) {
-      console.log(e);
-    }
   }
 
- 
+
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type={'log'} onSubmit={handleSearch} isShowAdd={false} />
+        <TableSearch type="log" onSubmit={handleSearch} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>
         <ITable
           loading={loading}
-          key={'log'}
+          key="log"
           columns={columns}
           data={{ list: logList, pagination: {} }}
           onChange={handleTable}
@@ -153,7 +142,7 @@ const AccessCharge: React.FC = () => {
                 required: true,
                 message: '请输入退款金额',
               },
-              
+
             ]}
           >
             <Input className={styles.input} placeholder="请输入退款金额" type="number" />

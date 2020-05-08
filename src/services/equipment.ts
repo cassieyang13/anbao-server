@@ -8,7 +8,7 @@ export async function getAccessList(params: any): Promise<any> {
 
 // 新增门禁
 export async function addAccess(params: any): Promise<any> {
-  return request(`/device/api/v1/access/add`, {
+  return request('/device/api/v1/access/add', {
     method: 'PUT',
     body: params,
     formData: true,
@@ -17,7 +17,7 @@ export async function addAccess(params: any): Promise<any> {
 
 // 编辑门禁
 export async function editAccess(params: any): Promise<any> {
-    return request(`/device/api/v1/access/update`, {
+    return request('/device/api/v1/access/update', {
       method: 'POST',
       body: params,
       formData: true,
@@ -38,7 +38,7 @@ export async function getChargeList(params: any): Promise<any> {
 
 // 新增充电
 export async function addCharge(params: any): Promise<any> {
-  return request(`/device/api/v1/charge/add`, {
+  return request('/device/api/v1/charge/add', {
     method: 'PUT',
     body: params,
     formData: true,
@@ -47,7 +47,7 @@ export async function addCharge(params: any): Promise<any> {
 
 // 编辑充电
 export async function editCharge(params: any): Promise<any> {
-    return request(`/device/api/v1/charge/update`, {
+    return request('/device/api/v1/charge/update', {
       method: 'POST',
       body: params,
       formData: true,

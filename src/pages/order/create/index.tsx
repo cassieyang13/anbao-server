@@ -85,9 +85,7 @@ export default function CreateOrder() {
 
   function getTempPrice() {
     if (vehType) {
-      const veh = curVeh.filter((item: any) => {
-        return item.vehId === vehType;
-      });
+      const veh = curVeh.filter((item: any) => item.vehId === vehType);
       console.log(veh[0].accessPrice);
       console.log(pledgePrice);
 
@@ -119,7 +117,6 @@ export default function CreateOrder() {
           accessPrice: data.accessPrice,
         });
       }
-    } else {
     }
   }
 
@@ -142,7 +139,6 @@ export default function CreateOrder() {
           // vehType: null,
           pledgePrice: res.data.community.pledgePrice,
         });
-        
       }
       form.resetFields(['vehType'])
     }
@@ -192,7 +188,7 @@ export default function CreateOrder() {
             <Select
               placeholder="请选择订单类型"
               onChange={(value: any) => setOrderType(value)}
-              disabled={parkType === 0 ? true : false}
+              disabled={parkType === 0}
             >
               <Select.Option value={0}>门禁</Select.Option>
               <Select.Option value={2}>充电+门禁</Select.Option>
@@ -210,13 +206,11 @@ export default function CreateOrder() {
             ]}
           >
             <Select placeholder="请选择小区" onChange={handleComit}>
-              {comitList.map(item => {
-                return (
+              {comitList.map(item => (
                   <Select.Option key={item.comitId} value={item.comitId}>
                     {item.comitName}
                   </Select.Option>
-                );
-              })}
+                ))}
             </Select>
           </Form.Item>
           <Form.Item
@@ -230,30 +224,28 @@ export default function CreateOrder() {
             ]}
           >
             <Select placeholder="请选择车辆类型" onChange={val => setVehType(val)}>
-              {curVeh.map((item: any) => {
-                return (
+              {curVeh.map((item: any) => (
                   <Select.Option key={item.vehId} value={item.vehId}>
                     {item.vehName}
                   </Select.Option>
-                );
-              })}
+                ))}
             </Select>
           </Form.Item>
 
           {parkType === 1 ? (
-            <Form.Item label="到期时间:" 
+            <Form.Item label="到期时间:"
             name="endTime"
             rules={[
               {
                 required: true,
                 message: '请选择到期时间',
               },
-              
+
             ]}>
               <Form.Item
                 noStyle
                 name="endTime"
-               
+
               >
                 <DatePicker
                   style={{ width: '60%' }}
@@ -352,9 +344,9 @@ export default function CreateOrder() {
           {Number(orderType) === 2 && (vehType === 2 || vehType === 3) ? (
             <Form.Item label="电瓶伏数:" name="volt">
               <Select placeholder="请输入电瓶伏数" onChange={val => setBatType(val)}>
-                <Select.Option value={'48V'}>48V</Select.Option>
-                <Select.Option value={'60V'}>60V</Select.Option>
-                <Select.Option value={'72V'}>72V</Select.Option>
+                <Select.Option value="48V">48V</Select.Option>
+                <Select.Option value="60V">60V</Select.Option>
+                <Select.Option value="72V">72V</Select.Option>
               </Select>
             </Form.Item>
           ) : null}

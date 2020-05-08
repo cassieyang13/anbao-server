@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from './index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox, Select } from 'antd';
+import { Divider, Modal, Checkbox, Select, Form, Input, Button, Col, Row } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
-import ITable from '../../../components/ITable';
 import TableSearch from '@/components/TableSearch';
 import { getAccessList, addAccess, editAccess, deleteAccess } from '@/services/equipment';
-import { Form, Input, Button, Col, Row } from 'antd';
+
 import { ComitListData } from '@/services/interface';
 import { getComitList } from '@/services/village';
+import ITable from '../../../components/ITable';
+import styles from './index.less';
 
 interface IParams {
   devName: string;
@@ -27,9 +27,7 @@ const Equipment: React.FC = () => {
       title: '序号',
       key: 'sortId',
       align: 'center',
-      render: (val, _, index) => {
-        return index + 1;
-      },
+      render: (val, _, index) => index + 1,
     },
     {
       title: '设备id',
@@ -45,17 +43,13 @@ const Equipment: React.FC = () => {
       title: '设备类型',
       dataIndex: 'accessType',
       align: 'center',
-      render: value => {
-        return value === 0 ? '人脸' : '刷卡';
-      },
+      render: value => (value === 0 ? '人脸' : '刷卡'),
     },
     {
       title: '设备状态',
       dataIndex: 'status',
       align: 'center',
-      render: value => {
-        return value === '0' ? '离线' : '在线';
-      },
+      render: value => (value === '0' ? '离线' : '在线'),
     },
     {
       title: '小区id',
@@ -66,15 +60,13 @@ const Equipment: React.FC = () => {
       title: '门禁设备方向',
       dataIndex: 'direction',
       align: 'center',
-      render: value => {
-        return value === 0 ? '进' : '出';
-      },
+      render: value => (value === 0 ? '进' : '出'),
     },
-    {
-      title: '二维码',
-      dataIndex: 'qrCode',
-      align: 'center',
-    },
+    // {
+    //   title: '二维码',
+    //   dataIndex: 'qrCode',
+    //   align: 'center',
+    // },
     {
       title: '操作',
       key: 'action',
@@ -118,7 +110,10 @@ const Equipment: React.FC = () => {
   });
   const [isEdit, setIsEdit] = useState(false);
   const [comitList, setComitList] = useState<ComitListData[]>([]);
-
+  const [comitParam, setComitParam] = useState({
+    name: '',
+    location: '',
+  });
   useEffect(() => {
     getAccessData();
   }, [param]);
@@ -127,12 +122,11 @@ const Equipment: React.FC = () => {
     getComitData();
   }, []);
 
-  function getComitData() {   
-    getComitList(param).then(res => {
-      if (res) {       
+  function getComitData() {
+    getComitList(comitParam).then(res => {
+      if (res) {
         setComitList(res.data.communities);
       }
-     
     });
   }
   function getAccessData() {
@@ -211,7 +205,7 @@ const Equipment: React.FC = () => {
           direction: Number(values.direction),
           accessType: Number(values.accessType),
         });
-        //编辑
+        // 编辑
         editAccess({
           ...values,
           status: 0,
@@ -250,12 +244,12 @@ const Equipment: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type={'access'} comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
+        <TableSearch type="access" comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
       </div>
 
       <div className={styles.mainWrap}>
         <ITable
-          key={'access'}
+          key="access"
           columns={columns}
           data={{ list: AccessList, pagination: {} }}
           onChange={handleTable}
@@ -304,7 +298,7 @@ const Equipment: React.FC = () => {
               <Select.Option value={'0'}>离线</Select.Option>
               <Select.Option value={'1'}>在线</Select.Option>
             </Select>
-           
+
           </Form.Item> */}
 
           <Form.Item label="门禁设备方向:" name="direction">
@@ -316,15 +310,13 @@ const Equipment: React.FC = () => {
           <Form.Item label="选择小区:" name="comitId">
           <Select placeholder="请选择小区">
             {
-              comitList.map((item) => {
-                return <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>
-              })
-            }              
+              comitList.map(item => <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>)
+            }
             </Select>
           </Form.Item>
-          <Form.Item label="二维码:" name="qrCode">
+          {/* <Form.Item label="二维码:" name="qrCode">
             <Input className={styles.input} placeholder="请输入二维码链接" />
-          </Form.Item>
+          </Form.Item> */}
         </Form>
       </Modal>
     </PageHeaderWrapper>

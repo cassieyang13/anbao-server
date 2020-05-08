@@ -8,7 +8,7 @@ export async function getComitList(params: any): Promise<any> {
 
 // 新增小区
 export async function addComit(params: any): Promise<any> {
-  return request(`/comit/api/v1/add`, {
+  return request('/comit/api/v1/add', {
     method: 'PUT',
     body: params,
   });
@@ -16,7 +16,7 @@ export async function addComit(params: any): Promise<any> {
 
 // 编辑小区
 export async function eitComit(params: any): Promise<any> {
-  return request(`/comit/api/v1/update`, {
+  return request('/comit/api/v1/update', {
     method: 'POST',
     body: params,
   });
@@ -29,9 +29,10 @@ export async function deleteComit(params: any): Promise<any> {
 }
 
 // 生成小区二维码
-export async function comitQrCode(params: {comitId: number, type: string}): Promise<any> {
-  return request(`/comit/api/v1/delete?${spl(params)}`, {
+export async function comitQrCode(params: {comitId: number, type: string, devId?: string}): Promise<any> {
+  return request('/qrcore/api/v1/create', {
     method: 'POST',
     formData: true,
+    body: params
   });
 }

@@ -1,9 +1,9 @@
 import { notification } from 'antd';
 import router from 'umi/router';
 import _ from 'lodash';
+import UserStorage from '@/utils/storage';
 import Urls from './urls';
 import { buildFormData } from './utils';
-import UserStorage from '@/utils/storage';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -28,7 +28,7 @@ async function errHandle<T>(pro: Promise<T>) {
     const res: any = await pro;
     notification.error({
       message: '系统通知',
-      description:'系统错误',
+      description: '系统错误',
     });
   } catch (error) {
     console.log(error);
@@ -39,7 +39,7 @@ async function checkStatus(response: any, newOptions: any) {
   if (response.status >= 200 && response.status < 300) {
     if (newOptions.method === 'DELETE' || response.status === 204) {
       return Promise.resolve(response.text());
-    }  
+    }
     // if (res.result === 401) {
     //   UserStorage.clearUserLogin();
     //   router.push('/user/login');
@@ -60,6 +60,10 @@ async function checkStatus(response: any, newOptions: any) {
   throw error;
 }
 
+
+function checkException (response) {
+
+}
 /**
  * Requests a URL, returning a promise.
  *
@@ -107,14 +111,14 @@ export default async function request(url: string, options: IMyOptionObj = {}) {
     }
   }
   return fetch(Urls.getUrl(url), newOptions)
-    .then((res) => checkStatus(res, newOptions))
-    .then(response => {      
+    .then(res => checkStatus(res, newOptions))
+    .then(response => {
       if (response.result === 401) {
         UserStorage.clearUserLogin();
         router.push('/user/login');
         return;
       }
-      return response;
+      return Promise.resolve(response);
     })
     .catch(err => {
       console.log(err)

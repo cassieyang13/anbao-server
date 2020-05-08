@@ -8,7 +8,7 @@ export async function getUserList(params: any): Promise<any> {
 
 // 新增用户
 export async function addUser(params: any): Promise<any> {
-  return request(`/comit/api/v1/add`, {
+  return request('/comit/api/v1/add', {
     method: 'PUT',
     body: params,
     formData: true,
@@ -17,7 +17,7 @@ export async function addUser(params: any): Promise<any> {
 
 // 编辑用户
 export async function eitUser(params: any): Promise<any> {
-    return request(`/comit/api/v1/update`, {
+    return request('/comit/api/v1/update', {
       method: 'POST',
       body: params,
       formData: true,

@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from '../index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox, Select, message } from 'antd';
+import { Divider, Modal, Checkbox, Select, message, Form, Input, Button, Col, Row } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import ITable from '@/components/ITable';
 import TableSearch from '@/components/TableSearch';
 import { getAccessList, addAccess, editAccess, deleteAccess } from '@/services/equipment';
-import { Form, Input, Button, Col, Row } from 'antd';
+
 import { getUserList } from '@/services/client';
 import { getOrderList, refund, updateOrder } from '@/services/order';
 import moment from 'moment';
+import styles from '../index.less';
 
 // interface IParams {
 //   orderId: string;
@@ -23,9 +23,7 @@ const AccessCharge: React.FC = () => {
       title: '序号',
       key: 'sortId',
       align: 'center',
-      render: (val, _, index) => {
-        return index + 1;
-      },
+      render: (val, _, index) => index + 1,
     },
     {
       title: '订单类型',
@@ -155,8 +153,8 @@ const AccessCharge: React.FC = () => {
   function handleModify(record: any) {
     setEdit({ ...record });
 
-    setShowCount(record.orderType === 2 && record.parkType == 1);
-    setShowPrice(record.orderType === 0 && record.parkType == 0);
+    setShowCount(record.orderType === 2 && Number(record.parkType) === 1);
+    setShowPrice(record.orderType === 0 && Number(record.parkType) === 0);
     formOrder.setFieldsValue({
       parkType: record.parkType,
       orderStatus: record.orderStatus,
@@ -190,14 +188,13 @@ const AccessCharge: React.FC = () => {
   // }
 
   function handleRefund(record: any) {
-    
     // setVisiable(true);
 
     Modal.confirm({
       title: '提示',
       content: '确认退款？',
       onOk: () => {
-        
+
       },
     });
   }
@@ -217,9 +214,9 @@ const AccessCharge: React.FC = () => {
           onOk: () => {
             refund({
               orderId: record.orderId,
-            }).then(res => {
-              console.log(res);
-              if (res && res.result === 0) {
+            }).then(refundRes => {
+              console.log(refundRes);
+              if (refundRes && refundRes.result === 0) {
                 message.success('退款成功');
                 getOrderData();
               }
@@ -228,7 +225,7 @@ const AccessCharge: React.FC = () => {
         });
       }
     });
-    
+
     // const values = await form.validateFields();
     // console.log(values);
     // try {
@@ -247,7 +244,7 @@ const AccessCharge: React.FC = () => {
   function validRefund(rule: any, value: any, callback: any) {
     const { pledgePrice, tempPrice } = refundInfo;
     if (value > pledgePrice + tempPrice) {
-      return Promise.reject('退款金额不能大于临停押金和实体卡押金的总和');
+      // return Promise.reject('退款金额不能大于临停押金和实体卡押金的总和');
     }
     return Promise.resolve();
   }
@@ -270,23 +267,25 @@ const AccessCharge: React.FC = () => {
         getOrderData();
         setOrderVisiable(false);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   function parkChange(value: any) {
-    setShowCount(edit.orderType === 2 && value == 1);
-    setShowPrice(edit.orderType === 0 && value == 0);
+    setShowCount(edit.orderType === 2 && Number(value) === 1);
+    setShowPrice(edit.orderType === 0 && Number(value) === 0);
   }
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type={'order'} onSubmit={handleSearch} isShowAdd={false} />
+        <TableSearch type="order" onSubmit={handleSearch} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>
         <ITable
           loading={loading}
-          key={'order'}
+          key="order"
           columns={columns}
           data={{ list: clientList, pagination: {} }}
           onChange={handleTable}
@@ -351,10 +350,10 @@ const AccessCharge: React.FC = () => {
             ]}
           >
             <Select placeholder="请选择订单状态">
-              <Select.Option value={'create'}>订单创建待支付</Select.Option>
-              <Select.Option value={'validity'}>有效期内</Select.Option>
-              <Select.Option value={'expired'}>订单过期</Select.Option>
-              <Select.Option value={'delete'}>删除</Select.Option>
+              <Select.Option value="create">订单创建待支付</Select.Option>
+              <Select.Option value="validity">有效期内</Select.Option>
+              <Select.Option value="expired">订单过期</Select.Option>
+              <Select.Option value="delete">删除</Select.Option>
             </Select>
           </Form.Item>
           {showPrice ? (

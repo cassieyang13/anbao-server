@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from './index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox, message } from 'antd';
+import { Divider, Modal, Checkbox, message, Form, Input, Button, Col, Row } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
-import ITable from '../../components/ITable';
-import TableSearch from './TableSearch';
 import { getComitList, addComit, eitComit, deleteComit, comitQrCode } from '@/services/village';
-import { Form, Input, Button, Col, Row } from 'antd';
+
 import { ITableData, ComitListData } from '@/services/interface';
 import ImageComponents from '@/components/Image';
+import TableSearch from './TableSearch';
+import ITable from '../../components/ITable';
+import styles from './index.less';
 
 interface IParams {
   comitName: string;
@@ -27,9 +27,7 @@ const Village: React.FC = () => {
       title: '序号',
       key: 'sortId',
       align: 'center',
-      render: (val, _, index) => {
-        return index + 1;
-      },
+      render: (val, _, index) => index + 1,
     },
     {
       title: '小区名称',
@@ -48,13 +46,9 @@ const Village: React.FC = () => {
       dataIndex: 'openType',
       key: 'openType',
       align: 'center',
-      render: (value: any) => {
-        return value.map((item: any) => {
-          return (
+      render: (value: any) => value.map((item: any) => (
             <span key={`open${item}`}>{item === '0' ? '微信扫码/人脸识别' : '实体卡'}&nbsp;</span>
-          );
-        });
-      },
+          )),
     },
     {
       title: '实体卡押金',
@@ -90,20 +84,21 @@ const Village: React.FC = () => {
       title: '车辆类型',
       dataIndex: 'vehicleList',
       align: 'center',
-      render: (value: any) => {
-        return value.map((item: any) => {
-          return <span key={`veh${item.vehId}`}>{item.vehName}&nbsp;</span>;
-        });
-      },
+      render: (value: any) => value.map((item: any) => <span key={`veh${item.vehId}`}>{item.vehName}&nbsp;</span>),
     },
     {
-      title: '二维码',
+      title: '小区二维码',
       dataIndex: 'qrCode',
       key: 'qrCode',
       align: 'center',
-      render: (value: any) => {
-        return value ? <ImageComponents src={value} isPreview style={{width: '50px', height: '50px'}} /> : null
-      },
+      render: (value: any) => (value ? <ImageComponents src={value} isPreview style={{ width: '50px', height: '50px' }} /> : null),
+    },
+    {
+      title: '小区退款二维码',
+      dataIndex: 'qrCodeRefund',
+      key: 'qrCodeRefund',
+      align: 'center',
+      render: (value: any) => (value ? <ImageComponents src={value} isPreview style={{ width: '50px', height: '50px' }} /> : null),
     },
     {
       title: '操作',
@@ -144,8 +139,10 @@ const Village: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   // const [haveQrCode, setQrCode] = useState(false);
-  const [qrCode, setQrCode] = useState('https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1703379070,4045642993&fm=26&gp=0.jpg');
+  const [qrCode, setQrCode] = useState('');
+  const [qrCodeRefund, setQrCodeRefund] = useState('');
   const [vehTypeArr, setVehTypeArr] = useState<any[]>([]);
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     console.log(window.document.location.href);
@@ -176,6 +173,7 @@ const Village: React.FC = () => {
     let triPrice = 0;
     let motoPrice = 0;
     const { batteryList } = record;
+    setIsEdit(true)
 
     const vehicleIdsArr = record.vehicleList.map((item: any) => {
       if (item.vehName === '自行车') {
@@ -191,11 +189,16 @@ const Village: React.FC = () => {
     });
 
     if (record.qrCode) {
-      setQrCode(record.qrCode)
+      setQrCode(record.qrCode);
     } else {
-      setQrCode('')
+      setQrCode('');
     }
-    
+    if (record.qrCodeRefund) {
+      setQrCodeRefund(record.qrCodeRefund)
+    } else {
+      setQrCodeRefund('')
+    }
+
     setVehTypeArr([...vehicleIdsArr]);
     form.setFieldsValue({
       comitName: record.comitName,
@@ -245,7 +248,7 @@ const Village: React.FC = () => {
     });
   }
 
-  function handleTable() {}
+  function handleTable() { }
 
   function handleSearch(values: any) {
     console.log(values);
@@ -259,14 +262,17 @@ const Village: React.FC = () => {
   function handleAdd() {
     form.resetFields();
     form.setFieldsValue({});
+    setIsEdit(false)
     setVisiable(true);
+    setQrCode('');
+    setQrCodeRefund('')
   }
 
   async function modalSubmit() {
     console.log(editData);
     const values = await form.validateFields();
 
-    let vehicleList = [];
+    const vehicleList = [];
 
     if (values.bicyclePrice) {
       vehicleList.push({
@@ -325,12 +331,13 @@ const Village: React.FC = () => {
       projectPhone: values.projectPhone,
     };
     try {
-      if (editData.comitId) {
-        //编辑
+      if (isEdit) {
+        // 编辑
         eitComit({
           ...reqParams,
           comitId: editData.comitId,
           qrCode,
+          qrCodeRefund,
         }).then(res => {
           if (res.result === 0) {
             getComitData();
@@ -344,11 +351,10 @@ const Village: React.FC = () => {
           ...reqParams,
         }).then(res => {
           if (res.result === 0) {
+            getComitData();
+            setVisiable(false);
+            form.resetFields();
           }
-
-          getComitData();
-          setVisiable(false);
-          // form.resetFields();
         });
       }
     } catch (e) {
@@ -365,10 +371,14 @@ const Village: React.FC = () => {
     setVehTypeArr(value);
   }
 
-  async function handleQrCode () {
-    const res = await comitQrCode({comitId: editData.comitId, type: 'access'});
+  async function handleQrCode(type: string) {
+    const res = await comitQrCode({ comitId: editData.comitId, type });
     if (res && res.result === 0) {
-      setQrCode(res.data);
+      if (type === 'access') {
+        setQrCode(res.data.qrcodePath);
+      } else {
+        setQrCodeRefund(res.data.qrcodePath);
+      }
       message.success('生成成功')
     }
   }
@@ -380,20 +390,20 @@ const Village: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type={'village'} onSubmit={handleSearch} onAdd={handleAdd} />
+        <TableSearch type="village" onSubmit={handleSearch} onAdd={handleAdd} />
       </div>
 
       <div className={styles.mainWrap}>
         <ITable
           loading={loading}
-          key={'village'}
+          key="village"
           columns={columns}
           data={{ list: comitList, pagination: {} }}
           onChange={handleTable}
         />
       </div>
       <Modal
-      getContainer={false}
+        getContainer={false}
         forceRender
         title="新增/编辑小区信息"
         visible={visiable}
@@ -443,10 +453,10 @@ const Village: React.FC = () => {
             <Checkbox.Group style={{ width: '100%' }} onChange={openTypeChange}>
               <Row>
                 <Col span={12}>
-                  <Checkbox value={'0'}>微信扫码/人脸识别</Checkbox>
+                  <Checkbox value="0">微信扫码/人脸识别</Checkbox>
                 </Col>
                 <Col span={12}>
-                  <Checkbox value={'1'}>实体卡</Checkbox>
+                  <Checkbox value="1">实体卡</Checkbox>
                 </Col>
               </Row>
             </Checkbox.Group>
@@ -691,10 +701,15 @@ const Village: React.FC = () => {
           >
             <Input className={styles.input} placeholder="请输入联系人电话" />
           </Form.Item>
-          {editData.comitId ? (
-            <Form.Item label="小区二维码:" >              
-              {qrCode ? <ImageComponents  src={qrCode} isPreview={true} /> : <Button type="primary" onClick={handleQrCode}>生成二维码</Button>}
-            </Form.Item>
+          {isEdit ? (
+            <>
+              <Form.Item label="小区二维码:" >
+                <ImageComponents canDelete src={qrCode} isPreview onQrCode={() => handleQrCode('access')} onDelete={() => setQrCode('')}/>
+              </Form.Item>
+              <Form.Item label="小区退款二维码:" >
+                <ImageComponents canDelete src={qrCodeRefund} isPreview onQrCode={() => handleQrCode('refund')} onDelete={() => setQrCodeRefund('')} />
+              </Form.Item>
+            </>
           ) : null}
         </Form>
       </Modal>

@@ -1,23 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from './index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox, message, Select } from 'antd';
+import { Divider, Modal, Checkbox, message, Select, Form, Input, Button, Col, Row } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
-import ITable from '../../../components/ITable';
 import TableSearch from '@/components/TableSearch';
 import { getChargeList, addCharge, editCharge, deleteCharge } from '@/services/equipment';
-import { Form, Input, Button, Col, Row } from 'antd';
-import { getComitList } from '@/services/village';
-import { ComitListData } from '@/services/interface';
 
-interface IParams {
-  devName: string;
-  status: string;
-  direction: number | undefined;
-  comitId: number | undefined;
-  qrCode: string;
-  devId?: number | undefined;
-}
+import { getComitList, comitQrCode } from '@/services/village';
+import { ComitListData } from '@/services/interface';
+import ImageComponents from '@/components/Image';
+import ITable from '../../../components/ITable';
+import styles from './index.less';
+
 
 const Equipment: React.FC = () => {
   const [form] = Form.useForm();
@@ -26,9 +19,7 @@ const Equipment: React.FC = () => {
       title: '序号',
       key: 'sortId',
       align: 'center',
-      render: (val, _, index) => {
-        return index + 1;
-      },
+      render: (val, _, index) => index + 1,
     },
     {
       title: '设备id',
@@ -49,21 +40,22 @@ const Equipment: React.FC = () => {
       title: '设备状态',
       dataIndex: 'status',
       align: 'center',
-      render: value => {
-        return value === '0' ? '离线' : '在线';
-      },
+      render: value => (value === '0' ? '离线' : '在线'),
     },
     {
       title: '小区',
       dataIndex: 'comitId',
       align: 'center',
-      
+
     },
     {
-      title: '二维码',
+      title: '充电二维码',
       dataIndex: 'qrCode',
+      key: 'qrCode',
       align: 'center',
+      render: (value: any) => (value ? <ImageComponents src={value} isPreview style={{ width: '50px', height: '50px' }} /> : null),
     },
+
     {
       title: '操作',
       key: 'action',
@@ -74,6 +66,10 @@ const Equipment: React.FC = () => {
             查看
           </span>
           <Divider type="vertical" /> */}
+          <span style={{ color: '#1890ff', cursor: 'pointer' }} onClick={() => handleEdit(record)}>
+            编辑二维码
+          </span>
+          <Divider type="vertical" />
           <span
             style={{ color: '#1890ff', cursor: 'pointer' }}
             onClick={() => handleDelete(record)}
@@ -95,16 +91,17 @@ const Equipment: React.FC = () => {
     qrCode: '',
   });
   const [visiable, setVisiable] = useState(false);
-  const [isView, setIsView] = useState(false);
-  const [editData, setEditData] = useState<IParams>({
-    devName: '',
-    status: '',
-    direction: undefined,
-    comitId: undefined,
-    qrCode: '',
+  const [isEdit, setIsEdit] = useState(false);
+  const [editData, setEditData] = useState<any>({
     devId: undefined,
+    comitId: undefined,
   });
   const [comitList, setComitList] = useState<ComitListData[]>([]);
+  const [comitParam, setComitParam] = useState({
+    name: '',
+    location: '',
+  });
+  const [qrCode, setQrCode] = useState('');
 
   useEffect(() => {
     getChargeData();
@@ -114,17 +111,16 @@ const Equipment: React.FC = () => {
     getComitData();
   }, []);
 
-  function getComitData() {   
-    getComitList(param).then(res => {
-      if (res) {       
+  function getComitData() {
+    getComitList(comitParam).then(res => {
+      if (res) {
         setComitList(res.data.communities);
       }
-     
     });
   }
   function getChargeData() {
     getChargeList(param).then((res: any) => {
-      if(res) {
+      if (res) {
         setChargeList(res.data.chargeDevices);
       }
     });
@@ -138,17 +134,18 @@ const Equipment: React.FC = () => {
       comitId: record.comitId,
       qrCode: record.qrCode,
     })
-   
-    // setEditData({
-    //   devId: record.devId,
-    //   devName: record.devName,
-    //   status: record.status,
-    //   direction: record.direction,
-    //   comitId: record.comitId,
-    //   qrCode: record.qrCode,
-    // });
+
+    setQrCode(record.qrCode)
+    setEditData({
+      devId: record.devId,
+      devId10: record.devId10,
+      devName: record.devName,
+      status: record.status,
+      comitId: record.comitId,
+      qrCode: record.qrCode,
+    });
     setVisiable(true);
-    setIsView(true)
+    setIsEdit(true)
   }
 
   function handleDelete(record: any) {
@@ -161,17 +158,16 @@ const Equipment: React.FC = () => {
           devId: record.devId,
         }).then((res: any) => {
           console.log(res);
-          if(res.result === 0) {
-
+          if (res.result === 0) {
+            getChargeData()
+            message.success('删除成功')
           }
-          getChargeData()
-          message.success('删除成功')
         });
       },
     });
   }
 
-  function handleTable() {}
+  function handleTable() { }
 
   function handleSearch(values: any) {
     console.log(values);
@@ -183,69 +179,74 @@ const Equipment: React.FC = () => {
 
   function handleAdd() {
     setVisiable(true);
+    setIsEdit(false)
   }
 
   async function modalSubmit() {
-    if (isView) {
-      message.info('当前只能查看，不可修改！')
-      return;
-    }
+    // if (isEdit) {
+    //   message.info('当前只能查看，不可修改！')
+    //   return;
+    // }
     const values = await form.validateFields();
     console.log(values);
     try {
-      // 新增
-      addCharge({
-        ...values,
-        status: 0,
-        comitId: Number(values.comitId),
-        // devId10: values.devId,
-      }).then((res: any) => {
-        console.log(res)
-        getChargeData();
-        form.resetFields();
-        setVisiable(false);
-        setIsView(false)
-      });
-      // if (editData.devId && values.ChargeId !== '') {
-      //   //编辑
-      //   editCharge({
-      //     ...values,
-      //     comitId: Number(values.comitId),
-      //     devId: editData.devId,
-      //   }).then((res: any) => {
-      //     getChargeData();
-      //     form.resetFields();
-      //     setVisiable(false);
-      //     setIsView(false)
-      //   });
-      // } else {
-        
-      // }
+      if (isEdit) {
+        // 编辑
+        editCharge({
+          ...values,
+          comitId: Number(values.comitId),
+          devId: editData.devId,
+          qrCode,
+        }).then((res: any) => {
+          getChargeData();
+          form.resetFields();
+          setVisiable(false);
+          setIsEdit(false)
+        });
+      } else {
+        // 新增
+        addCharge({
+          ...values,
+          status: 0,
+          comitId: Number(values.comitId),
+          // devId10: values.devId,
+        }).then((res: any) => {
+          console.log(res)
+          getChargeData();
+          form.resetFields();
+          setVisiable(false);
+          setIsEdit(false)
+        });
+      }
     } catch (e) {
       console.log(e);
     }
   }
 
-  function openTypeChange(value: any) {
-    console.log(value);
-  }
 
   function validDevId(value: any, callback: any) {
     if (value.length !== 8) {
       callback('输入8位数的id')
     }
     callback()
+  }
 
+  async function handleQrCode(type: string) {
+    const res = await comitQrCode({ comitId: editData.comitId, type, devId: editData.devId });
+    if (res && res.result === 0) {
+      setQrCode(res.data.qrcodePath);
+      message.success('生成成功')
+    }
   }
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type={'charge'} comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
+        <TableSearch type="charge" comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
       </div>
 
       <div className={styles.mainWrap}>
         <ITable
-          key={'access'}
+          key="access"
           columns={columns}
           data={{ list: ChargeList, pagination: {} }}
           onChange={handleTable}
@@ -255,15 +256,15 @@ const Equipment: React.FC = () => {
         title="新增充电信息"
         visible={visiable}
         onOk={modalSubmit}
-        onCancel={() => {setVisiable(false); setIsView(false)}}
-        
-      >        
+        onCancel={() => { setVisiable(false); setIsEdit(false) }}
+
+      >
         <Form
           form={form}
           layout="vertical"
-          validateMessages={validMeg}          
+          validateMessages={validMeg}
         >
-           <Form.Item
+          <Form.Item
             label="设备id:"
             name="devId10"
             rules={[
@@ -276,7 +277,7 @@ const Equipment: React.FC = () => {
               // }
             ]}
           >
-            <Input className={styles.input} type="number" placeholder="请输入设备id" disabled={isView} />
+            <Input className={styles.input} placeholder="请输入设备id" disabled={isEdit} />
           </Form.Item>
           <Form.Item
             label="设备名称:"
@@ -288,9 +289,9 @@ const Equipment: React.FC = () => {
               },
             ]}
           >
-            <Input className={styles.input} placeholder="请输入设备名称" />
+            <Input className={styles.input} placeholder="请输入设备名称" disabled={isEdit} />
           </Form.Item>
-         
+
           {/* <Form.Item label="设备状态:" name="status"
           rules={[
             {
@@ -302,27 +303,28 @@ const Equipment: React.FC = () => {
               <Select.Option value={'0'}>离线</Select.Option>
               <Select.Option value={'1'}>在线</Select.Option>
             </Select>
-         
+
           </Form.Item> */}
-          
+
           <Form.Item label="选择小区:" name="comitId"
-           rules={[
-            {
-              required: true,
-              message: '请输入选择小区',
-            },
-          ]}>
-          <Select placeholder="请选择小区">
-            {
-              comitList.map((item) => {
-                return <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>
-              })
-            }              
+            rules={[
+              {
+                required: true,
+                message: '请输入选择小区',
+              },
+            ]}>
+            <Select placeholder="请选择小区" disabled={isEdit}>
+              {
+                comitList.map(item => <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>)
+              }
             </Select>
           </Form.Item>
-          <Form.Item label="二维码:" name="qrCode">
-            <Input className={styles.input} placeholder="请输入二维码链接" />
-          </Form.Item>          
+          {
+            isEdit ? <Form.Item label="二维码:" >
+              <ImageComponents canDelete src={qrCode} isPreview onQrCode={() => handleQrCode('charge')} onDelete={() => setQrCode('')} />
+            </Form.Item> : null
+          }
+
         </Form>
       </Modal>
     </PageHeaderWrapper>

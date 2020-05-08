@@ -6,11 +6,11 @@ import { connect } from 'dva';
 import { router } from 'umi';
 import { ConnectProps, ConnectState } from '@/models/connect';
 import { CurrentUser } from '@/models/user';
-import HeaderDropdown from '../HeaderDropdown';
-import styles from './index.less';
 import logo from '@/assets/logo.png';
 import { logout } from '@/services/login';
 import UserStorage from '@/utils/storage';
+import styles from './index.less';
+import HeaderDropdown from '../HeaderDropdown';
 
 export interface GlobalHeaderRightProps extends ConnectProps {
   currentUser?: CurrentUser;

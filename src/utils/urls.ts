@@ -20,17 +20,17 @@ class Urls {
     console.log(process.env)
     const getWebRootPath = function () {
       let a = window.document.location.href;//
-      let b = window.document.location.pathname;
+      const b = window.document.location.pathname;
       const pos = a.indexOf(b);
       const path = a.substring(0, pos);
-      a = a.substring(a.indexOf("/") + 2, a.length);
-      a = a.substring(a.indexOf("/") + 1, a.length);
-      const pathName = a.substring(0, a.indexOf("/"));
-      return path + "/" + pathName;
-      }     
+      a = a.substring(a.indexOf('/') + 2, a.length);
+      a = a.substring(a.indexOf('/') + 1, a.length);
+      const pathName = a.substring(0, a.indexOf('/'));
+      return `${path}/${pathName}`;
+      }
       console.log(getWebRootPath())
       // return getWebRootPath() + url;
-      return process.env.NODE_ENV === 'development'  ? UrlList['dev'] + url : getWebRootPath() + url;
+      return process.env.NODE_ENV === 'development' ? UrlList.dev + url : getWebRootPath() + url;
     // return UrlList['dev'] + url;
   };
 }

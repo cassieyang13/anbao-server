@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from '../index.less';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Divider, Modal, Checkbox } from 'antd';
+import { Divider, Modal, Checkbox, Form, Input, Button, Col, Row } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import ITable from '@/components/ITable';
 import TableSearch from '@/components/TableSearch';
-import { Form, Input, Button, Col, Row } from 'antd';
+
 import { getOrderList, refund } from '@/services/order';
 import moment from 'moment';
 import { getLogList, getChargeLogList } from '@/services/log';
+import styles from '../index.less';
 
 // interface IParams {
 //   orderId: string;
@@ -21,9 +21,7 @@ const ChargeLog: React.FC = () => {
       title: '序号',
       key: 'sortId',
       align: 'center',
-      render: (val, _, index) => {
-        return index + 1;
-      },
+      render: (val, _, index) => index + 1,
     },
     {
       title: '手机',
@@ -109,22 +107,18 @@ const ChargeLog: React.FC = () => {
   async function modalSubmit() {
     const values = await form.validateFields();
     console.log(values);
-    try {
-    } catch (e) {
-      console.log(e);
-    }
   }
 
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type={'log'} onSubmit={handleSearch} isShowAdd={false} />
+        <TableSearch type="log" onSubmit={handleSearch} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>
         <ITable
           loading={loading}
-          key={'log'}
+          key="log"
           columns={columns}
           data={{ list: logList, pagination: {} }}
           onChange={handleTable}

@@ -20,8 +20,6 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
     const values = await form.validateFields()
     try {
       onSubmit(values)
-
-     
     } catch (e) {
       console.log(e);
     }
@@ -41,11 +39,11 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
       <Row className={styles.left}>
         <Col span={12}>
           <Form.Item label="小区名称:" name="comitName">
-            <Input className={styles.input}  placeholder="请输入小区名称" />
+            <Input className={styles.input} placeholder="请输入小区名称" />
           </Form.Item>
         </Col>
         <Col>
-          <Form.Item label="地址:"  name="comitLocation">
+          <Form.Item label="地址:" name="comitLocation">
             <Input className={styles.input} placeholder="请输入地址" />
           </Form.Item>
         </Col>
