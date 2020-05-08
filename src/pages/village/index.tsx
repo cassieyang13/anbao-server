@@ -412,7 +412,6 @@ const Village: React.FC = () => {
           setVisiable(false);
           form.setFieldsValue({});
         }}
-        destroyOnClose
         width={600}
       >
         <Form {...formItemLayout} form={form} layout="horizontal">

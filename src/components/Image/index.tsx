@@ -50,7 +50,7 @@ export default function ImageComponents(props: IImageProps) {
         </div> : <Button type="primary" onClick={onQrCode}>生成二维码</Button>
       }
 
-      <Modal title="右键保存图片" width={548} visible={visible} onCancel={() => setVisible(false)} destroyOnClose>
+      <Modal title="右键保存图片" width={548} visible={visible} onCancel={() => setVisible(false)} onOk={() => setVisible(false)} destroyOnClose>
         <img alt="二维码" src={src} style={{ width: '100%', height: '500px' }} />
       </Modal>
     </div>

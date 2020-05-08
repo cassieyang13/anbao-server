@@ -56,12 +56,12 @@ export default function CreateOrder() {
       console.log({
         ...values,
         ...reqParams,
-        endTime: moment(values.endTime).format('YYYY-MM-DD'),
+        endtime: moment(values.endtime).format('YYYY-MM-DD'),
       });
       const response = await createOrder({
         ...values,
         ...reqParams,
-        endtime: moment(values.endTime).format('YYYY-MM-DD'),
+        endtime: moment(values.endtime).endOf('days').format('YYYY-MM-DD HH:mm:ss'),
       });
       if (response && response.result === 0) {
         message.success('创建成功');
@@ -104,7 +104,7 @@ export default function CreateOrder() {
     if (values.parkType === 1) {
       const priceRes = await orderPrice({
         createtime: moment().format('YYYY-MM-DD'),
-        endtime: moment(values.endTime).format('YYYY-MM-DD'),
+        endtime: moment(values.endtime).format('YYYY-MM-DD'),
         vehType: values.vehType,
         comitId: values.comitId,
         batType: values.volt,
@@ -234,18 +234,19 @@ export default function CreateOrder() {
 
           {parkType === 1 ? (
             <Form.Item label="到期时间:"
-            name="endTime"
-            rules={[
-              {
-                required: true,
-                message: '请选择到期时间',
-              },
-
-            ]}>
+            // name="endtime"
+            required
+            >
               <Form.Item
                 noStyle
-                name="endTime"
-
+                name="endtime"
+                rules={[
+                  {
+                    required: true,
+                    message: '请选择到期时间',
+                  },
+    
+                ]}
               >
                 <DatePicker
                   style={{ width: '60%' }}
@@ -256,42 +257,6 @@ export default function CreateOrder() {
               <span style={{ color: '#FF0000', marginLeft: '10px' }}>只选择到月底！</span>
             </Form.Item>
           ) : null}
-
-          {/* <Form.Item
-            label="订单状态:"
-            name="orderStatus"
-            rules={[
-              {
-                required: true,
-                message: '请选择订单状态',
-              },
-            ]}
-          >
-            <Select placeholder="请选择订单状态">
-              <Select.Option value={'create'}>订单创建待支付</Select.Option>
-              <Select.Option value={'validity'}>有效期内</Select.Option>
-              <Select.Option value={'expired'}>订单过期</Select.Option>
-              <Select.Option value={'delete'}>删除</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="支付状态:"
-            name="payStatus"
-            rules={[
-              {
-                required: true,
-                message: '请选择支付状态',
-              },
-            ]}
-          >
-            <Select placeholder="请选择支付状态">
-              <Select.Option value={'waitpaid'}>等待支付</Select.Option>
-              <Select.Option value={'allpaid'}>完成支付</Select.Option>
-              <Select.Option value={'refunding'}>发起退款</Select.Option>
-              <Select.Option value={'refunded'}>已退款</Select.Option>
-            </Select>
-          </Form.Item> */}
-
           <Form.Item
             label="实体卡号:"
             name="cardNo"
