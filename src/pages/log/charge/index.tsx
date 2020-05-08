@@ -51,14 +51,14 @@ const ChargeLog: React.FC = () => {
       dataIndex: 'orderId',
       align: 'center',
     },
-    {
-      title: '操作',
-      dataIndex: 'direction',
-      align: 'center',
-      render: value => {
-        return value === 0 ? '进门' : '出门';
-      },
-    },
+    // {
+    //   title: '操作',
+    //   dataIndex: 'direction',
+    //   align: 'center',
+    //   render: value => {
+    //     return value === 0 ? '进门' : '出门';
+    //   },
+    // },
 
   ];
 

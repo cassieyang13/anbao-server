@@ -107,7 +107,7 @@ const AccessCharge: React.FC = () => {
               <Divider type="vertical" />
               <span
                 style={{ color: '#1890ff', cursor: 'pointer' }}
-                onClick={() => handleRefund(record)}
+                onClick={() => visiableRefund(record)}
               >
                 退款
               </span>
@@ -161,6 +161,7 @@ const AccessCharge: React.FC = () => {
       parkType: record.parkType,
       orderStatus: record.orderStatus,
       totalCounts: record.totalCounts,
+      nowCounts: record.nowCounts,
     });
 
     setOrderVisiable(true);
@@ -184,35 +185,50 @@ const AccessCharge: React.FC = () => {
     });
   }
 
+  // function visiableRefund (){
+  //   setVisiable(true)
+  // }
+
   function handleRefund(record: any) {
-    setRefundInfo({
-      ...record,
-    });
+    
     // setVisiable(true);
 
     Modal.confirm({
       title: '提示',
       content: '确认退款？',
       onOk: () => {
-        refund({
-          orderId: record.orderId,
-        }).then(res => {
-          console.log(res);
-          if (res && res.result) {
-            modalSubmit(res.data.refundFee);
-          }
-        });
+        
       },
     });
   }
-  async function modalSubmit(price: any) {
-    Modal.confirm({
-      title: '提示',
-      content: `退款金额为${price}`,
-      onOk: () => {
-        getOrderData();
-      },
+  async function visiableRefund(record: any) {
+    setRefundInfo({
+      ...record,
     });
+    refund({
+      orderId: record.orderId,
+      query: 'refund'
+    }).then(res => {
+      console.log(res);
+      if (res && res.result === 0) {
+        Modal.confirm({
+          title: '提示',
+          content: `退款金额为${res.data.refundFee}元，确认退款？`,
+          onOk: () => {
+            refund({
+              orderId: record.orderId,
+            }).then(res => {
+              console.log(res);
+              if (res && res.result === 0) {
+                message.success('退款成功');
+                getOrderData();
+              }
+            });
+          },
+        });
+      }
+    });
+    
     // const values = await form.validateFields();
     // console.log(values);
     // try {
@@ -250,6 +266,7 @@ const AccessCharge: React.FC = () => {
 
       if (response) {
         message.success('修改成功');
+        formOrder.resetFields()
         getOrderData();
         setOrderVisiable(false);
       }
@@ -278,7 +295,7 @@ const AccessCharge: React.FC = () => {
       <Modal
         title="退款金额"
         visible={visiable}
-        onOk={modalSubmit}
+        onOk={visiableRefund}
         forceRender
         onCancel={() => setVisiable(false)}
       >

@@ -56,10 +56,10 @@ const AccessCharge: React.FC = () => {
     },
     {
       title: '操作',
-      dataIndex: 'status',
+      dataIndex: 'direction',
       align: 'center',
       render: (value) => {
-        return value ? '进门' : '出门'
+        return value === '1' ? '出门' : '进门'
       }
     },
   ];

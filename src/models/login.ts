@@ -41,8 +41,8 @@ const Model: LoginModelType = {
  
         console.log(response)    
         if (isLongin) {
-          yield UserStorage.setUserToken(response.data);
-          yield UserStorage.setUserInfo(response.data);
+          yield UserStorage.setUserToken(response.data.token);
+          yield UserStorage.setUserInfo(response.data.admin);
           yield message.success('登录成功,正在进入...');
           yield put(routerRedux.replace('/'));
         } else {

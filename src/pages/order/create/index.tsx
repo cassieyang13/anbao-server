@@ -49,26 +49,26 @@ export default function CreateOrder() {
 
       // 充电+门禁
       if (values.orderType === 2) {
-        reqParams.createTime = moment()
+        reqParams.createtime = moment()
           .startOf('day')
-          .format('YYYY-MM-DD HH:mm:ss');
+          .format('YYYY-MM-DD ');
       }
       console.log({
         ...values,
         ...reqParams,
-        endTime: moment(values.endTime).format('YYYY-MM-DD HH:mm:ss'),
+        endTime: moment(values.endTime).format('YYYY-MM-DD'),
       });
       const response = await createOrder({
         ...values,
         ...reqParams,
-        endTime: moment(values.endTime)
-          .endOf('day')
-          .format('YYYY-MM-DD HH:mm:ss'),
+        endtime: moment(values.endTime).format('YYYY-MM-DD'),
       });
-      if (response) {
+      if (response && response.result === 0) {
         message.success('创建成功');
 
         form.resetFields();
+      } else if (response && response.result === 1) {
+        message.error(response.msg);
       }
     }
   }
@@ -129,9 +129,9 @@ export default function CreateOrder() {
 
     const res = await comitDetail({ comitId: value });
     if (res) {
-      // 包月
       setCurVeh(res.data.community.vehicleList);
       setPledgeParice(res.data.community.pledgePrice);
+      // 包月
       if (formValues.parkType === 1) {
         form.setFieldsValue({
           pledgePrice: res.data.community.pledgePrice,
@@ -139,9 +139,12 @@ export default function CreateOrder() {
       } else {
         // 临停
         form.setFieldsValue({
+          // vehType: null,
           pledgePrice: res.data.community.pledgePrice,
         });
+        
       }
+      form.resetFields(['vehType'])
     }
   }
 
@@ -153,7 +156,7 @@ export default function CreateOrder() {
   function handleParkType(val: any) {
     setParkType(val);
     if (val === 0) {
-      setOrderType(0)
+      setOrderType(0);
       form.setFieldsValue({ orderType: 0 });
     }
   }
@@ -238,16 +241,19 @@ export default function CreateOrder() {
           </Form.Item>
 
           {parkType === 1 ? (
-            <Form.Item label="到期时间:">
+            <Form.Item label="到期时间:" 
+            name="endTime"
+            rules={[
+              {
+                required: true,
+                message: '请选择到期时间',
+              },
+              
+            ]}>
               <Form.Item
-              noStyle 
+                noStyle
                 name="endTime"
-                rules={[
-                  {
-                    required: true,
-                    message: '请选择到期时间',
-                  },
-                ]}
+               
               >
                 <DatePicker
                   style={{ width: '60%' }}
@@ -328,7 +334,6 @@ export default function CreateOrder() {
                 message: '请输入用户手机',
               },
             ]}
-            
           >
             <Input placeholder="请输入用户手机" />
           </Form.Item>
@@ -344,7 +349,7 @@ export default function CreateOrder() {
           >
             <Input placeholder="请输入房号" />
           </Form.Item>
-          {Number(orderType) === 2 && (vehType === 2 || vehType === 3)? (
+          {Number(orderType) === 2 && (vehType === 2 || vehType === 3) ? (
             <Form.Item label="电瓶伏数:" name="volt">
               <Select placeholder="请输入电瓶伏数" onChange={val => setBatType(val)}>
                 <Select.Option value={'48V'}>48V</Select.Option>
