@@ -64,7 +64,6 @@ export const getRouteAuthority = (path: string, routeData: Route[]) => {
   return authorities;
 };
 
-
 /** 展开对象Get结构 */
 export const spl = (obj: object) => {
   let results = '';
@@ -91,16 +90,16 @@ export function buildFormData(obj: {}) {
   return fm;
 }
 
-export function standT(res: any) {
-  if (res && res.code === '10000' && res.data) {
+export function standT(list: any, page: any) {
+  if (list && page) {
     return {
-      list: res.data.records,
+      list: list,
       pagination: {
-        total: res.data.total,
-        size: res.data.size,
-        page: res.data.current,
+        total: page.totalCounts,
+        size: page.pageSize,
+        page: page.pageNo,
       },
     };
   }
-  return { List: [], pagination: {} };
+  return { list: [], pagination: {} };
 }

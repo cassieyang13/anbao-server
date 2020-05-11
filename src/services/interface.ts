@@ -12,4 +12,5 @@ export interface ComitListData {
 
 export interface ITableData<T> {
   list: T[];
+  pagination: PaginationProps;
 }

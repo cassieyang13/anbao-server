@@ -8,6 +8,9 @@ import { getAccessList, addAccess, editAccess, deleteAccess } from '@/services/e
 
 import { getUserList, deleteUser } from '@/services/client';
 import styles from './index.less';
+import { PaginationProps } from 'antd/lib/pagination';
+import { ITableData } from '@/services/interface';
+import { standT } from '@/utils/utils';
 
 interface IParams {
   userPhone: string;
@@ -56,10 +59,12 @@ const Order: React.FC = () => {
   ];
 
   const validMeg = {};
-  const [clientList, setClientList] = useState<any[]>([]);
+  const [clientList, setClientList] = useState<ITableData<any>>({list: [], pagination: {}});
   const [param, setParam] = useState({
     userPhone: '',
-    userName: ''
+    userName: '',
+    pageNo: 1,
+    pageSize: 10,
   });
   const [visiable, setVisiable] = useState(false);
   const [editData, setEditData] = useState<IParams>({
@@ -74,7 +79,8 @@ const Order: React.FC = () => {
   function getClientData() {
     getUserList(param).then((res: any) => {
       if (res) {
-        setClientList(res.data);
+        const formatData = standT(res.data.userList, res.data.page)
+        setClientList(formatData);
       }
     });
   }
@@ -97,7 +103,7 @@ const Order: React.FC = () => {
     });
   }
 
-  function handleTable() {}
+
 
   function handleSearch(values: any) {
     console.log(values);
@@ -146,6 +152,13 @@ const Order: React.FC = () => {
   }
 
   function vehicleChange() {}
+
+  
+  function handleTable(pagination: PaginationProps) {
+    const page = pagination.current || 1;
+    const size = pagination.pageSize || 10;
+    setParam({ ...param, pageNo: page, pageSize: size });
+  }
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
@@ -156,7 +169,7 @@ const Order: React.FC = () => {
         <ITable
           key="access"
           columns={columns}
-          data={{ list: clientList, pagination: {} }}
+          data={clientList}
           onChange={handleTable}
         />
       </div>

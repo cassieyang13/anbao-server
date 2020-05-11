@@ -10,6 +10,9 @@ import { getUserList } from '@/services/client';
 import { getOrderList, refund, updateOrder } from '@/services/order';
 import moment from 'moment';
 import styles from '../index.less';
+import { PaginationProps } from 'antd/lib/pagination';
+import { standT } from '@/utils/utils';
+import { ITableData } from '@/services/interface';
 
 interface IParams {
   orderId: string;
@@ -108,15 +111,18 @@ const OrderCharge: React.FC = () => {
   ];
 
   const validMeg = {};
-  const [clientList, setClientList] = useState<any[]>([]);
+  const [chargeOrderList, setOrderList] = useState<ITableData<any>>({list: [], pagination: {}});
   const [param, setParam] = useState({
+    pageNo: 1,
+    pageSize: 10,
+    comitId: null,
     orderType: 1,
     userPhone: '',
     startTime: moment()
       .days(-3)
       .format('YYYY-MM-DD HH:mm:ss'),
     endTime: moment().format('YYYY-MM-DD HH:mm:ss'),
-    orderStatus: '',
+    orderStatus: 'validity',
   });
   const [visiable, setVisiable] = useState(false);
   const [refundInfo, setRefundInfo] = useState<IParams>({
@@ -138,7 +144,9 @@ const OrderCharge: React.FC = () => {
     getOrderList(param).then((res: any) => {
       if (res) {
         setLoading(false);
-        setClientList(res.data);
+        // setClientList(res.data);
+        const formatData = standT(res.data.chargeOrders, res.data.page);
+        setOrderList(formatData);
       }
     });
   }
@@ -155,13 +163,11 @@ const OrderCharge: React.FC = () => {
     setOrderVisiable(true);
   }
 
-
-  function handleTable() {}
-
   function handleSearch(values: any) {
     console.log(values);
     setParam({
       ...param,
+      comitId: values.comitId,
       orderType: 0,
       orderStatus: values.orderStatus ? values.orderStatus : param.orderStatus,
       userPhone: values.userPhone,
@@ -262,6 +268,11 @@ const OrderCharge: React.FC = () => {
     setShowPrice(edit.orderType === 0 && Number(value) === 0);
   }
 
+  function handleTable(pagination: PaginationProps) {
+    const page = pagination.current || 1;
+    const size = pagination.pageSize || 10;
+    setParam({ ...param, pageNo: page, pageSize: size });
+  }
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
@@ -272,7 +283,7 @@ const OrderCharge: React.FC = () => {
         <ITable
           key="order"
           columns={columns}
-          data={{ list: clientList, pagination: {} }}
+          data={chargeOrderList}
           onChange={handleTable}
           loading={loading}
         />

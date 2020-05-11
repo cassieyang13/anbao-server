@@ -120,6 +120,15 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
             <Input className={styles.input} placeholder="请输入手机号" type="number" />
           </Form.Item>
         </Col>
+        <Col span={12}>
+          <Form.Item label="选择小区:" name="comitId">
+          <Select placeholder="请选择小区">
+            {
+              comitData && comitData.map(item => <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>)
+            }
+            </Select>
+          </Form.Item>
+        </Col>
       </Row>
     );
   }

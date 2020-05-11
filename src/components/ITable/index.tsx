@@ -20,7 +20,7 @@ function ITable<T>({
   ...rest
 }: ITableProps<T>) {
   /** 添加一下默认项 */
-  pagination = { ...pagination, showQuickJumper: true, showSizeChanger: true };
+  pagination = { ...pagination, showQuickJumper: true, showSizeChanger: true, showTotal: (total) => {return `总共${total}条`}};
   return (
     <Table
       loading={loading}

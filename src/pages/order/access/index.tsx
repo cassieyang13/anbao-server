@@ -10,6 +10,10 @@ import { getUserList } from '@/services/client';
 import { getOrderList, refund, updateOrder } from '@/services/order';
 import moment from 'moment';
 import styles from '../index.less';
+import { PaginationProps } from 'antd/lib/pagination';
+import { standT } from '@/utils/utils';
+import { ITableData, ComitListData } from '@/services/interface';
+import { getComitList } from '@/services/village';
 
 // interface IParams {
 //   orderId: string;
@@ -116,8 +120,11 @@ const AccessCharge: React.FC = () => {
     },
   ];
 
-  const [clientList, setClientList] = useState<any[]>([]);
+  const [clientList, setClientList] = useState<ITableData<any>>({ list: [], pagination: {} });
   const [param, setParam] = useState({
+    pageNo: 1,
+    pageSize: 10,
+    comitId: null,
     orderType: 0,
     userPhone: '',
     startTime: moment()
@@ -135,17 +142,29 @@ const AccessCharge: React.FC = () => {
   const [edit, setEdit] = useState<any>({});
   const [showCount, setShowCount] = useState<any>({});
   const [showPrice, setShowPrice] = useState<any>({});
-
+  const [comitList, setComitList] = useState<ComitListData[]>([]);
   useEffect(() => {
     getOrderData();
   }, [param]);
+  useEffect(() => {
+    getComitData();
+  }, []);
+
+  function getComitData() {
+    getComitList({ name: '', location: '' }).then(res => {
+      if (res) {
+        setComitList(res.data.communities);
+      }
+    });
+  }
 
   function getOrderData() {
     setLoading(true);
     getOrderList(param).then((res: any) => {
       if (res) {
         setLoading(false);
-        setClientList(res.data);
+        const formatData = standT(res.data.accessOrders, res.data.page);
+        setClientList(formatData);
       }
     });
   }
@@ -165,13 +184,12 @@ const AccessCharge: React.FC = () => {
     setOrderVisiable(true);
   }
 
-  function handleTable() {}
-
   function handleSearch(values: any) {
     console.log(values);
     setParam({
       ...param,
       orderType: 0,
+      comitId: values.comitId,
       orderStatus: values.orderStatus ? values.orderStatus : param.orderStatus,
       userPhone: values.userPhone,
       startTime: values.rangeTime
@@ -193,9 +211,7 @@ const AccessCharge: React.FC = () => {
     Modal.confirm({
       title: '提示',
       content: '确认退款？',
-      onOk: () => {
-
-      },
+      onOk: () => {},
     });
   }
   async function visiableRefund(record: any) {
@@ -204,7 +220,7 @@ const AccessCharge: React.FC = () => {
     });
     refund({
       orderId: record.orderId,
-      query: 'refund'
+      query: 'refund',
     }).then(res => {
       console.log(res);
       if (res && res.result === 0) {
@@ -263,12 +279,12 @@ const AccessCharge: React.FC = () => {
 
       if (response) {
         message.success('修改成功');
-        formOrder.resetFields()
+        formOrder.resetFields();
         getOrderData();
         setOrderVisiable(false);
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
@@ -276,10 +292,16 @@ const AccessCharge: React.FC = () => {
     setShowCount(edit.orderType === 2 && Number(value) === 1);
     setShowPrice(edit.orderType === 0 && Number(value) === 0);
   }
+
+  function handleTable(pagination: PaginationProps) {
+    const page = pagination.current || 1;
+    const size = pagination.pageSize || 10;
+    setParam({ ...param, pageNo: page, pageSize: size });
+  }
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type="order" onSubmit={handleSearch} isShowAdd={false} />
+        <TableSearch type="order" onSubmit={handleSearch} comitData={comitList} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>
@@ -287,7 +309,7 @@ const AccessCharge: React.FC = () => {
           loading={loading}
           key="order"
           columns={columns}
-          data={{ list: clientList, pagination: {} }}
+          data={clientList}
           onChange={handleTable}
         />
       </div>
@@ -350,10 +372,8 @@ const AccessCharge: React.FC = () => {
             ]}
           >
             <Select placeholder="请选择订单状态">
-              <Select.Option value="create">订单创建待支付</Select.Option>
               <Select.Option value="validity">有效期内</Select.Option>
               <Select.Option value="expired">订单过期</Select.Option>
-              <Select.Option value="delete">删除</Select.Option>
             </Select>
           </Form.Item>
           {showPrice ? (

@@ -9,6 +9,9 @@ import { getOrderList, refund } from '@/services/order';
 import moment from 'moment';
 import { getLogList, getChargeLogList } from '@/services/log';
 import styles from '../index.less';
+import { standT } from '@/utils/utils';
+import { ITableData } from '@/services/interface';
+import { PaginationProps } from 'antd/lib/pagination';
 
 // interface IParams {
 //   orderId: string;
@@ -60,8 +63,10 @@ const ChargeLog: React.FC = () => {
 
   ];
 
-  const [logList, setLogList] = useState<any[]>([]);
+  const [logList, setLogList] = useState<ITableData<any>>({list: [], pagination: {}});
   const [param, setParam] = useState({
+    pageNo: 1,
+    pageSize: 10,
     devId: 0,
     userPhone: '',
     startTime: moment()
@@ -82,12 +87,17 @@ const ChargeLog: React.FC = () => {
     getChargeLogList(param).then((res: any) => {
       if (res) {
         setLoading(false);
-        setLogList(res.data);
+        const formatData = standT(res.data.chargeRecords, res.data.page);
+        setLogList(formatData);
       }
     });
   }
 
-  function handleTable() {}
+  function handleTable(pagination: PaginationProps) {
+    const page = pagination.current || 1;
+    const size = pagination.pageSize || 10;
+    setParam({ ...param, pageNo: page, pageSize: size });
+  }
 
   function handleSearch(values: any) {
     console.log(values);
@@ -120,7 +130,7 @@ const ChargeLog: React.FC = () => {
           loading={loading}
           key="log"
           columns={columns}
-          data={{ list: logList, pagination: {} }}
+          data={logList}
           onChange={handleTable}
         />
       </div>
