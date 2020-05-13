@@ -134,7 +134,7 @@ const OrderCharge: React.FC = () => {
   const [edit, setEdit] = useState<any>({});
   const [showCount, setShowCount] = useState<any>({});
   const [showPrice, setShowPrice] = useState<any>({});
-
+  const [sumPrice, setSumPricee] = useState(0);
   useEffect(() => {
     getOrderData();
   }, [param]);
@@ -147,6 +147,7 @@ const OrderCharge: React.FC = () => {
         // setClientList(res.data);
         const formatData = standT(res.data.chargeOrders, res.data.page);
         setOrderList(formatData);
+        setSumPricee(res.data.sumPrice)
       }
     });
   }
@@ -275,7 +276,8 @@ const OrderCharge: React.FC = () => {
   }
   return (
     <PageHeaderWrapper>
-      <div className={styles.searchWrap}>
+      <div className={styles.searchWrap}  style={{backgroundColor: '#ffffff'}}>
+      <div style={{padding:'20px'}}> 所有充电订单总价： {sumPrice}</div>
         <TableSearch type="order" onSubmit={handleSearch} isShowAdd={false} />
       </div>
 

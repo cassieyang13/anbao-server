@@ -142,6 +142,7 @@ const AccessCharge: React.FC = () => {
   const [edit, setEdit] = useState<any>({});
   const [showCount, setShowCount] = useState<any>({});
   const [showPrice, setShowPrice] = useState<any>({});
+  const [sumPrice, setSumPricee] = useState(0);
   const [comitList, setComitList] = useState<ComitListData[]>([]);
   useEffect(() => {
     getOrderData();
@@ -165,6 +166,7 @@ const AccessCharge: React.FC = () => {
         setLoading(false);
         const formatData = standT(res.data.accessOrders, res.data.page);
         setClientList(formatData);
+        setSumPricee(res.data.sumPrice)
       }
     });
   }
@@ -300,7 +302,8 @@ const AccessCharge: React.FC = () => {
   }
   return (
     <PageHeaderWrapper>
-      <div className={styles.searchWrap}>
+      <div className={styles.searchWrap} style={{backgroundColor: '#ffffff'}}>
+       <div style={{padding:'20px'}}> 所有停车订单总价： {sumPrice}</div>
         <TableSearch type="order" onSubmit={handleSearch} comitData={comitList} isShowAdd={false} />
       </div>
 

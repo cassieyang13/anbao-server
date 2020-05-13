@@ -39,8 +39,7 @@ export default [
         path: '/client',
         name: 'client',
         component: './client',
-      },
-
+      },     
       {
         path: '/order',
         name: 'order',
@@ -82,6 +81,11 @@ export default [
             component: './log/charge',
           },
         ],
+      },
+      {
+        path: '/message',
+        name: 'message',
+        component: './message',
       },
       // {
       //   path: '/welcome',

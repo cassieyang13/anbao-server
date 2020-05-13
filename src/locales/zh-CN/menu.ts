@@ -62,4 +62,5 @@ export default {
   'menu.log': '日志',
   'menu.log.access': '门禁日志',
   'menu.log.charge': '充电日志',
+  'menu.message': '消息通知',
 };
