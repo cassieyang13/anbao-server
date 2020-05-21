@@ -12,7 +12,8 @@ import moment from 'moment';
 import styles from '../index.less';
 import { PaginationProps } from 'antd/lib/pagination';
 import { standT } from '@/utils/utils';
-import { ITableData } from '@/services/interface';
+import { ITableData, ComitListData } from '@/services/interface';
+import { getComitList } from '@/services/village';
 
 interface IParams {
   orderId: string;
@@ -52,16 +53,25 @@ const OrderCharge: React.FC = () => {
       title: '临停押金',
       dataIndex: 'tempPrice',
       align: 'center',
+      render: value => {        
+        return `${value}元`;
+      },
     },
     {
       title: '实体卡押金',
       dataIndex: 'pledgePrice',
       align: 'center',
+      render: value => {        
+        return `${value}元`;
+      },
     },
     {
       title: '总价',
       dataIndex: 'sellingPrice',
       align: 'center',
+      render: value => {        
+        return `${value}元`;
+      },
     },
     {
       title: '开始时间',
@@ -135,14 +145,29 @@ const OrderCharge: React.FC = () => {
   const [showCount, setShowCount] = useState<any>({});
   const [showPrice, setShowPrice] = useState<any>({});
   const [sumPrice, setSumPricee] = useState(0);
+  const [comitList, setComitList] = useState<ComitListData[]>([]);
   useEffect(() => {
     getOrderData();
   }, [param]);
+  useEffect(() => {
+    getComitData();
+  }, []);
+  function getComitData() {
+    getComitList({ name: '', location: '' }).then(res => {
+      if (res) {
+        setComitList(res.data.communities);
+        setParam({
+          ...param,
+          comitId: res.data.communities[0].comitId,
+        })
+      }
+    });
+  }
 
   function getOrderData() {
     setLoading(true);
     getOrderList(param).then((res: any) => {
-      if (res) {
+      if (res && res.result === 0) {
         setLoading(false);
         // setClientList(res.data);
         const formatData = standT(res.data.chargeOrders, res.data.page);
@@ -169,7 +194,7 @@ const OrderCharge: React.FC = () => {
     setParam({
       ...param,
       comitId: values.comitId,
-      orderType: 0,
+      orderType: 1,
       orderStatus: values.orderStatus ? values.orderStatus : param.orderStatus,
       userPhone: values.userPhone,
       startTime: values.rangeTime
@@ -277,8 +302,8 @@ const OrderCharge: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}  style={{backgroundColor: '#ffffff'}}>
-      <div style={{padding:'20px'}}> 所有充电订单总价： {sumPrice}</div>
-        <TableSearch type="order" onSubmit={handleSearch} isShowAdd={false} />
+      <div style={{padding:'20px'}}> 所有充电订单总价： {sumPrice}元</div>
+        <TableSearch type="order" onSubmit={handleSearch} comitData={comitList} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>

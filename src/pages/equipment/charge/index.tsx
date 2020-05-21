@@ -42,12 +42,7 @@ const Equipment: React.FC = () => {
       align: 'center',
       render: value => (value === '0' ? '离线' : '在线'),
     },
-    {
-      title: '小区',
-      dataIndex: 'comitId',
-      align: 'center',
-
-    },
+    
     {
       title: '充电二维码',
       dataIndex: 'qrCode',
@@ -115,6 +110,10 @@ const Equipment: React.FC = () => {
     getComitList(comitParam).then(res => {
       if (res) {
         setComitList(res.data.communities);
+        setParam({
+          ...param,
+          comitId: res.data.communities[0].comitId,
+        })
       }
     });
   }
@@ -241,7 +240,7 @@ const Equipment: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type="charge" comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
+        <TableSearch type="charge" defaultData={param} comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
       </div>
 
       <div className={styles.mainWrap}>

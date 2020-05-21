@@ -10,8 +10,9 @@ import moment from 'moment';
 import { getLogList, getChargeLogList } from '@/services/log';
 import styles from '../index.less';
 import { standT } from '@/utils/utils';
-import { ITableData } from '@/services/interface';
+import { ITableData, ComitListData } from '@/services/interface';
 import { PaginationProps } from 'antd/lib/pagination';
+import { getComitList } from '@/services/village';
 
 // interface IParams {
 //   orderId: string;
@@ -68,6 +69,7 @@ const ChargeLog: React.FC = () => {
     pageNo: 1,
     pageSize: 10,
     devId: 0,
+    comitId: null,
     userPhone: '',
     startTime: moment()
       .days(-3)
@@ -77,7 +79,23 @@ const ChargeLog: React.FC = () => {
   const [visiable, setVisiable] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [comitList, setComitList] = useState<ComitListData[]>([]);
+ 
+  useEffect(() => {
+    getComitData();
+  }, []);
 
+  function getComitData() {
+    getComitList({ name: '', location: '' }).then(res => {
+      if (res) {
+        setComitList(res.data.communities);
+        setParam({
+          ...param,
+          comitId: res.data.communities[0].comitId,
+        })
+      }
+    });
+  }
   useEffect(() => {
     getLogData();
   }, [param]);
@@ -104,6 +122,7 @@ const ChargeLog: React.FC = () => {
     setParam({
       ...param,
       devId: values.devId,
+      comitId: values.comitId,
       userPhone: values.userPhone,
       startTime: values.rangeTime
         ? moment(values.rangeTime[0]).format('YYYY-MM-DD HH:mm:ss')
@@ -122,7 +141,7 @@ const ChargeLog: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type="log" onSubmit={handleSearch} isShowAdd={false} />
+        <TableSearch type="log" defaultData={param} comitData={comitList} onSubmit={handleSearch} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>

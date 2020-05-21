@@ -60,16 +60,25 @@ const AccessCharge: React.FC = () => {
       title: '临停押金',
       dataIndex: 'tempPrice',
       align: 'center',
+      render: value => {        
+        return `${value}元`;
+      },
     },
     {
       title: '实体卡押金',
       dataIndex: 'pledgePrice',
       align: 'center',
+      render: value => {        
+        return `${value}元`;
+      },
     },
     {
       title: '总价',
       dataIndex: 'sellingPrice',
       align: 'center',
+      render: value => {        
+        return `${value}元`;
+      },
     },
     {
       title: '开始时间',
@@ -144,9 +153,7 @@ const AccessCharge: React.FC = () => {
   const [showPrice, setShowPrice] = useState<any>({});
   const [sumPrice, setSumPricee] = useState(0);
   const [comitList, setComitList] = useState<ComitListData[]>([]);
-  useEffect(() => {
-    getOrderData();
-  }, [param]);
+ 
   useEffect(() => {
     getComitData();
   }, []);
@@ -155,10 +162,16 @@ const AccessCharge: React.FC = () => {
     getComitList({ name: '', location: '' }).then(res => {
       if (res) {
         setComitList(res.data.communities);
+        setParam({
+          ...param,
+          comitId: res.data.communities[0].comitId,
+        })
       }
     });
   }
-
+  useEffect(() => {
+    getOrderData();
+  }, [param]);
   function getOrderData() {
     setLoading(true);
     getOrderList(param).then((res: any) => {
@@ -303,8 +316,8 @@ const AccessCharge: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap} style={{backgroundColor: '#ffffff'}}>
-       <div style={{padding:'20px'}}> 所有停车订单总价： {sumPrice}</div>
-        <TableSearch type="order" onSubmit={handleSearch} comitData={comitList} isShowAdd={false} />
+       <div style={{padding:'20px'}}> 所有停车订单总价： {sumPrice}元</div>
+        <TableSearch type="order" defaultData={param} onSubmit={handleSearch} comitData={comitList} isShowAdd={false} />
       </div>
 
       <div className={styles.mainWrap}>

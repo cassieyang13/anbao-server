@@ -51,11 +51,7 @@ const Equipment: React.FC = () => {
       align: 'center',
       render: value => (value === '0' ? '离线' : '在线'),
     },
-    {
-      title: '小区id',
-      dataIndex: 'comitId',
-      align: 'center',
-    },
+    
     {
       title: '门禁设备方向',
       dataIndex: 'direction',
@@ -126,6 +122,10 @@ const Equipment: React.FC = () => {
     getComitList(comitParam).then(res => {
       if (res) {
         setComitList(res.data.communities);
+        setParam({
+          ...param,
+          comitId: res.data.communities[0].comitId,
+        })
       }
     });
   }
@@ -244,7 +244,7 @@ const Equipment: React.FC = () => {
   return (
     <PageHeaderWrapper>
       <div className={styles.searchWrap}>
-        <TableSearch type="access" comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
+        <TableSearch defaultData={param} type="access" comitData={comitList} onSubmit={handleSearch} onAdd={handleAdd} />
       </div>
 
       <div className={styles.mainWrap}>

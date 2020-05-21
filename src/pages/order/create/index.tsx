@@ -29,7 +29,8 @@ export default function CreateOrder() {
 
   const [curVeh, setCurVeh] = useState<any>([]);
   const [parkType, setParkType] = useState<any>();
-  const [pledgePrice, setPledgeParice] = useState<any>(0);
+  const [pledgePrice, setPledgePrice] = useState<any>(0);
+  const [tempPrice, setTempPrice] = useState<any>(0);
 
   useEffect(() => {
     getComitData();
@@ -81,17 +82,17 @@ export default function CreateOrder() {
     } else {
       getTempPrice();
     }
-  }, [endtime, vehType, batType, comitId]);
+  }, [endtime, vehType, batType, comitId, pledgePrice, tempPrice]);
 
   function getTempPrice() {
     if (vehType) {
       const veh = curVeh.filter((item: any) => item.vehId === vehType);
-      console.log(veh[0].accessPrice);
-      console.log(pledgePrice);
+      // console.log(veh[0].accessPrice);
+      // console.log(pledgePrice);
 
       form.setFieldsValue({
-        accessPrice: veh[0].accessPrice,
-        sellingPrice: veh[0].accessPrice + pledgePrice,
+        accessPrice: veh[0] ? veh[0].accessPrice : 0,
+        sellingPrice: (veh[0] ? veh[0].accessPrice : 0) + pledgePrice + tempPrice,
       });
     }
     // 临停
@@ -104,7 +105,7 @@ export default function CreateOrder() {
     if (values.parkType === 1) {
       const priceRes = await orderPrice({
         createtime: moment().format('YYYY-MM-DD'),
-        endtime: moment(values.endtime).format('YYYY-MM-DD'),
+        endtime: moment(values.endtime).endOf('days').format('YYYY-MM-DD HH:mm:ss'),
         vehType: values.vehType,
         comitId: values.comitId,
         batType: values.volt,
@@ -127,7 +128,9 @@ export default function CreateOrder() {
     const res = await comitDetail({ comitId: value });
     if (res) {
       setCurVeh(res.data.community.vehicleList);
-      setPledgeParice(res.data.community.pledgePrice);
+      console.log(res.data.community.pledgePrice)
+      setPledgePrice(res.data.community.pledgePrice);
+      setTempPrice(res.data.community.tempPrice);
       // 包月
       if (formValues.parkType === 1) {
         form.setFieldsValue({
@@ -138,6 +141,7 @@ export default function CreateOrder() {
         form.setFieldsValue({
           // vehType: null,
           pledgePrice: res.data.community.pledgePrice,
+          tempPrice: res.data.community.tempPrice,
         });
       }
       form.resetFields(['vehType'])
@@ -315,17 +319,32 @@ export default function CreateOrder() {
               </Select>
             </Form.Item>
           ) : null}
+          {
+            parkType === 0 ?  <Form.Item
+            label="临停押金:"
+            name="tempPrice"
+            rules={[
+              {
+                required: true,
+                message: '请输入临停押金',
+              },
+            ]}
+          >
+            <Input placeholder="请输入临停押金" disabled />
+          </Form.Item> : null
+          }
+         
           <Form.Item
-            label="押金:"
+            label="实体卡押金:"
             name="pledgePrice"
             rules={[
               {
                 required: true,
-                message: '请输入押金',
+                message: '请输入实体卡押金',
               },
             ]}
           >
-            <Input placeholder="请输入押金" disabled />
+            <Input placeholder="请输入实体卡押金" disabled />
           </Form.Item>
           <Form.Item
             label="单价:"

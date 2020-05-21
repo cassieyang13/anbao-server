@@ -13,6 +13,7 @@ interface ITableSearch {
   onAdd?: () => void;
   isShowAdd?: boolean;
   comitData?: ComitListData[];
+  defaultData?: any;
 }
 
 const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
@@ -49,6 +50,12 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
   }
 
   function renderLog() {
+    const {defaultData} = props
+    if (defaultData) {
+      form.setFieldsValue({        
+        comitId: defaultData.comitId,
+      });
+    }
     return (
       <Row className={styles.left}>
 
@@ -72,6 +79,15 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
             <Input className={styles.input} placeholder="请输入手机号" type="number" />
           </Form.Item>
         </Col>
+        <Col span={12}>
+          <Form.Item label="选择小区:" name="comitId">
+          <Select placeholder="请选择小区"  >
+            {
+              comitData && comitData.map(item => <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>)
+            }
+            </Select>
+          </Form.Item>
+        </Col>
       </Row>
     );
   }
@@ -80,11 +96,15 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
     console.log(dates);
   }
   function renderOrder() {
-    // form.setFieldsValue({
-    //   // orderStatus: 'validity',
-    //   orderType: 0,
-    //   rangeTime: [moment().days(-3), moment()],
-    // });
+    const {defaultData} = props
+    // if (defaultData) {
+    //   form.setFieldsValue({
+    //     orderStatus: defaultData.orderStatus,
+    //     rangeTime: [moment().days(-3), moment()],
+    //     comitId: defaultData.comitId,
+    //   });
+    // }
+   
     return (
       <Row className={styles.left}>
         {/* <Col span={12}>
@@ -95,9 +115,9 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
             </Select>
           </Form.Item>
         </Col> */}
-        <Col span={12}>
+        <Col span={10}>
           <Form.Item label="订单状态:" name="orderStatus">
-            <Select defaultValue="validity" value="validity">
+            <Select defaultValue={'validity'} value="validity" >
               {/* <Select.Option value={'create'}>订单创建待支付</Select.Option> */}
               <Select.Option value="validity">有效期内</Select.Option>
               <Select.Option value="expired">订单过期</Select.Option>
@@ -105,8 +125,8 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
             </Select>
           </Form.Item>
         </Col>
-        <Col span={12}>
-          <Form.Item label="时间范围:" name="rangeTime">
+        <Col span={14}>
+          <Form.Item label="开始时间范围:" name="rangeTime">
             <RangePicker
               showTime
               onChange={pickerChange}
@@ -115,14 +135,14 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={10}>
           <Form.Item label="手机号:" name="userPhone">
-            <Input className={styles.input} placeholder="请输入手机号" type="number" />
+            <Input  placeholder="请输入手机号" type="number" />
           </Form.Item>
         </Col>
-        <Col span={12}>
+        <Col span={14}>
           <Form.Item label="选择小区:" name="comitId">
-          <Select placeholder="请选择小区">
+          <Select placeholder="请选择小区"  >
             {
               comitData && comitData.map(item => <Select.Option key={item.comitId} value={item.comitId}>{item.comitName}</Select.Option>)
             }
@@ -167,6 +187,22 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
   }
 
   function renderAccess() {
+    const {defaultData} = props
+    if (defaultData) {
+      if (type === 'charge') {
+        form.setFieldsValue({      
+          comitId: defaultData.comitId,
+        });
+      } else {
+        form.setFieldsValue({      
+          accessType:defaultData.accessType,
+          comitId: defaultData.comitId,
+        });
+      }
+      
+    }
+
+    console.log(defaultData)
     return (
       <Row className={styles.left}>
         <Col span={12}>
@@ -182,7 +218,7 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
         {
           type === 'charge' ? null : <Col span={12}>
           <Form.Item label="设备类型:" name="accessType">
-          <Select placeholder="请选择设备类型">
+          <Select placeholder="请选择设备类型" >
               <Select.Option value={0}>人脸</Select.Option>
               <Select.Option value={1}>刷卡</Select.Option>
             </Select>
@@ -230,11 +266,11 @@ const TableSearch: React.FC<ITableSearch> = (props: ITableSearch) => {
   }
   const formItemLayout = {
     labelCol: {
-      xs: { span: 6 },
+      xs: { span: 5 },
       sm: { span: 5 },
     },
     wrapperCol: {
-      xs: { span: 16 },
+      xs: { span: 15 },
       sm: { span: 18 },
     },
   };
